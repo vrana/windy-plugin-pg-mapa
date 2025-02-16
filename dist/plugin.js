@@ -8,8 +8,8 @@ const __pluginConfig =  {
   "desktopUI": "embedded",
   "mobileUI": "small",
   "routerPath": "/pgmapa",
-  "built": 1739673516249,
-  "builtReadable": "2025-02-16T02:38:36.249Z"
+  "built": 1739691992437,
+  "builtReadable": "2025-02-16T07:46:32.437Z"
 };
 
 // transformCode: import broadcast from '@windy/broadcast';
@@ -1039,7 +1039,7 @@ function instance($$self, $$props, $$invalidate) {
 			? ' style="color: red;"' + (site.flying_status == 4
 				? ' title="' + translate('flying forbidden', 'létání zakázáno') + '"'
 				: '')
-			: '') + '>' + html(site.name) + '</a></b>' + (localSites.length > 1
+			: '') + '>' + html(site.name) + '</a></b>' + (localSites.length > 1 && site.wind_usable
 			? ' <img src="' + getIconUrl([site], wind, colors) + '" width="12" height="12" alt="">'
 			: '') + [site.url].concat(site.urls || []).map(getUrlLink).join('') + (site.altitude
 			? ' <span title="' + translate('elevation', 'nadmořská výška') + '">' + site.altitude + ' ' + translate('masl', 'mnm') + '</span>'

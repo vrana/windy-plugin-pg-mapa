@@ -287,7 +287,7 @@ function getTooltip(latLon) {
 	const tooltips = localSites.map(site => {
 		return '<b style="font-size: 1.25em;' + (site.name.length >= 20 ? 'text-overflow: ellipsis; max-width: 180px; display: inline-block; overflow: hidden; vertical-align: text-bottom;" title="' + html(site.name) : '') + '"><a' + getLaunchAttrs(site)
 			+ (isSiteForbidden(site) ? ' style="color: red;"' + (site.flying_status == 4 ? ' title="' + translate('flying forbidden', 'létání zakázáno') + '"' : '') : '') + '>' + html(site.name) + '</a></b>'
-			+ (localSites.length > 1 ? ' <img src="' + getIconUrl([site], wind, colors) + '" width="12" height="12" alt="">' : '')
+			+ (localSites.length > 1 && site.wind_usable ? ' <img src="' + getIconUrl([site], wind, colors) + '" width="12" height="12" alt="">' : '')
 			+ [site.url].concat(site.urls || []).map(getUrlLink).join('')
 			+ (site.altitude ? ' <span title="' + translate('elevation', 'nadmořská výška') + '">' + site.altitude + ' ' + translate('masl', 'mnm') + '</span>' : '')
 			+ (site.superelevation ? ' (<span title="' + translate('vertical metre', 'převýšení') + '">' + site.superelevation + ' m</span>)' : '')
