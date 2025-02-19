@@ -7,6 +7,7 @@ const config: ExternalPluginConfig = {
     title: 'Paragliding Mapa',
     description: 'Windy plugin for paragliding takeoffs.',
     author: 'Jakub Vrána',
+    repository: 'https://github.com/vrana/windy-plugin-pg-mapa',
     desktopUI: 'embedded',
     mobileUI: 'small',
     routerPath: '/pgmapa',
