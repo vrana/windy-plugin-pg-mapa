@@ -1,15 +1,16 @@
 const __pluginConfig =  {
   "name": "windy-plugin-pg-mapa",
-  "version": "2.2.7",
+  "version": "2.2.8",
   "icon": "🪂",
   "title": "Paragliding Mapa",
   "description": "Windy plugin for paragliding takeoffs.",
   "author": "Jakub Vrána",
+  "repository": "https://github.com/vrana/windy-plugin-pg-mapa",
   "desktopUI": "embedded",
   "mobileUI": "small",
   "routerPath": "/pgmapa",
-  "built": 1739691992437,
-  "builtReadable": "2025-02-16T07:46:32.437Z"
+  "built": 1743789951530,
+  "builtReadable": "2025-04-04T18:05:51.530Z"
 };
 
 // transformCode: import broadcast from '@windy/broadcast';
@@ -1076,7 +1077,7 @@ function instance($$self, $$props, $$invalidate) {
 			? ''
 			: '_night_' + data.moonPhase);
 
-			extra.push('<a' + getForecastAttrs(latLon) + '>' + '<img src="https://www.windy.com/img/icons4/png_25px/' + icon + '.png" style="height: 1.3em; vertical-align: middle;" title="' + translate('weather', 'počasí') + ' ' + model + '"></a>' + (data.mm
+			extra.push('<a' + getForecastAttrs(latLon) + '>' + '<img src="https://www.windy.com/img/icons7/png_25px/' + icon + '.png" style="height: 1.3em; vertical-align: middle;" title="' + translate('weather', 'počasí') + ' ' + model + '"></a>' + (data.mm
 			? ' <span title="' + translate('precipitation', 'srážky') + '">' + data.mm + ' mm</span>'
 			: ''));
 		}

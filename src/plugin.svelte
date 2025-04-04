@@ -317,7 +317,7 @@ function getTooltip(latLon) {
 		const sunset = new Date(forecast.header.sunset).getHours();
 		const icon = data.icon + (data.hour > sunrise && data.hour <= sunset ? '' : '_night_' + data.moonPhase);
 		extra.push('<a' + getForecastAttrs(latLon) + '>'
-			+ '<img src="https://www.windy.com/img/icons4/png_25px/' + icon + '.png" style="height: 1.3em; vertical-align: middle;" title="' + translate('weather', 'počasí') + ' ' + model + '"></a>'
+			+ '<img src="https://www.windy.com/img/icons7/png_25px/' + icon + '.png" style="height: 1.3em; vertical-align: middle;" title="' + translate('weather', 'počasí') + ' ' + model + '"></a>'
 			+ (data.mm ? ' <span title="' + translate('precipitation', 'srážky') + '">' + data.mm + ' mm</span>' : '')
 		);
 	}
