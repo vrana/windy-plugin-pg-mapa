@@ -1,6 +1,6 @@
 ### Windy plugin for paragliding takeoffs
 
-![Screenshot](screenshot.png)
+![Screenshot](src/screenshot.png)
 
 Navigate to https://www.windy.com/plugins, find **Paragliding Mapa** and click _Open plugin_.
 Next time in the same browser, you can go to https://www.windy.com/plugin/pgmapa.

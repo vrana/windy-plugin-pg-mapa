@@ -1,7 +1,7 @@
 {
   "name": "windy-plugin-pg-mapa",
   "type": "module",
-  "version": "2.2.8",
+  "version": "2.2.9",
   "description": "Windy plugin for paragliding takeoffs.",
   "main": "dist/plugin.js",
   "scripts": {

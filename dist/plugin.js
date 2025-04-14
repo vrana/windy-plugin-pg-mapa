@@ -1,6 +1,6 @@
 const __pluginConfig =  {
   "name": "windy-plugin-pg-mapa",
-  "version": "2.2.8",
+  "version": "2.2.9",
   "icon": "🪂",
   "title": "Paragliding Mapa",
   "description": "Windy plugin for paragliding takeoffs.",
@@ -9,8 +9,9 @@ const __pluginConfig =  {
   "desktopUI": "embedded",
   "mobileUI": "small",
   "routerPath": "/pgmapa",
-  "built": 1743789951530,
-  "builtReadable": "2025-04-04T18:05:51.530Z"
+  "built": 1744635445173,
+  "builtReadable": "2025-04-14T12:57:25.173Z",
+  "screenshot": "screenshot.png"
 };
 
 // transformCode: import broadcast from '@windy/broadcast';
