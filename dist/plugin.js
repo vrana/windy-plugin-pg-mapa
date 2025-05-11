@@ -1,6 +1,6 @@
 const __pluginConfig =  {
   "name": "windy-plugin-pg-mapa",
-  "version": "2.2.9",
+  "version": "2.3.0",
   "icon": "🪂",
   "title": "Paragliding Mapa",
   "description": "Windy plugin for paragliding takeoffs.",
@@ -9,8 +9,8 @@ const __pluginConfig =  {
   "desktopUI": "embedded",
   "mobileUI": "small",
   "routerPath": "/pgmapa",
-  "built": 1744635445173,
-  "builtReadable": "2025-04-14T12:57:25.173Z",
+  "built": 1746962922908,
+  "builtReadable": "2025-05-11T11:28:42.908Z",
   "screenshot": "screenshot.png"
 };
 
@@ -795,6 +795,24 @@ function splitWindDir(layers) {
 	return segments;
 }
 
+/** Gets common prefix.
+ * @param {Array<string>} strings
+ * @return {Array<string>}
+ */
+function commonPrefix(strings) {
+	let length = 0;
+
+	for (const part of strings[0].split(/(?!\p{L})/u)) {
+		if (strings.some(s => s.substr(length, part.length) != part)) {
+			break;
+		}
+
+		length += part.length;
+	}
+
+	return length ? [strings[0].substring(0, length)] : strings;
+}
+
 /** Escapes special HTML characters.
  * @param {string} text
  * @return {string}
@@ -830,6 +848,7 @@ function instance($$self, $$props, $$invalidate) {
 
 	onDestroy(() => {
 		Object.values(markers).forEach(marker => marker.remove());
+		Object.values(names).forEach(name => name.remove());
 		broadcast.off('redrawFinished', redraw);
 	});
 
@@ -838,6 +857,9 @@ function instance($$self, $$props, $$invalidate) {
 
 	/** @type {Object<string, L.Marker>} key: latLon */
 	const markers = {};
+
+	/** @type {Object<string, L.Marker>} key: latLon */
+	const names = {};
 
 	/** @type {?L.Marker} */
 	let activeMarker = null;
@@ -858,6 +880,9 @@ function instance($$self, $$props, $$invalidate) {
 	let displaySounding = false;
 
 	function init() {
+		const style = document.createElement('style');
+		style.textContent = '.pgmapaName { text-align: center; color: yellow; text-shadow: 1px 0 #000, 0 1px #000, -1px 0 #000, 0 -1px #000; line-height: 1.2; white-space: pre; }';
+		document.head.appendChild(style);
 		broadcast.on('redrawFinished', redraw);
 
 		if (Object.keys(sites).length) {
@@ -940,6 +965,7 @@ function instance($$self, $$props, $$invalidate) {
 	async function redraw() {
 		const interpolator = await getLatLonInterpolator();
 		const mapBounds = map.getBounds();
+		const displayed = [];
 
 		for (const latLon in sites) {
 			const flights = sites[latLon].reduce((acc, site) => Math.max(acc, site.flights), 0);
@@ -966,9 +992,31 @@ function instance($$self, $$props, $$invalidate) {
 
 				updateMarker(latLon);
 				markers[latLon].addTo(map);
+				displayed.push(latLon);
 			} else if (markers[latLon]) {
 				markers[latLon].remove();
 			}
+		}
+
+		displayed.sort((a, b) => sites[a].every(isSiteForbidden) - sites[b].every(isSiteForbidden) || sites[b][0].flights - sites[a][0].flights);
+		Object.values(names).forEach(name => name.remove());
+
+		for (let i = 0; i < 10 && i < displayed.length; i++) {
+			const latLon = displayed[i];
+
+			if (!names[latLon]) {
+				const labels = commonPrefix(sites[latLon].map(site => html(site.name)));
+
+				const icon = L.divIcon({
+					html: labels.join('<br>'),
+					className: 'pgmapaName',
+					iconSize: [120, labels.length * 15]
+				});
+
+				names[latLon] = L.marker(getLatLon(latLon), { icon }).on('click', () => markers[latLon].openPopup());
+			}
+
+			names[latLon].addTo(map);
 		}
 
 		if (activeMarker) {

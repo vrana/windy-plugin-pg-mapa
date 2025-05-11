@@ -55,6 +55,7 @@ export const onopen = function () {
 
 onDestroy(() => {
 	Object.values(markers).forEach(marker => marker.remove());
+	Object.values(names).forEach(name => name.remove());
 	broadcast.off('redrawFinished', redraw);
 });
 
@@ -83,6 +84,8 @@ let Site;
 const sites = {};
 /** @type {Object<string, L.Marker>} key: latLon */
 const markers = {};
+/** @type {Object<string, L.Marker>} key: latLon */
+const names = {};
 /** @type {?L.Marker} */
 let activeMarker = null;
 /** @typedef {{wind: number, dir: number}} */
@@ -130,6 +133,9 @@ const airDatas = {ecmwf: {}};
 let displaySounding = false;
 
 function init() {
+	const style = document.createElement('style');
+	style.textContent = '.pgmapaName { text-align: center; color: yellow; text-shadow: 1px 0 #000, 0 1px #000, -1px 0 #000, 0 -1px #000; line-height: 1.2; white-space: pre; }';
+	document.head.appendChild(style);
 	broadcast.on('redrawFinished', redraw);
 	if (Object.keys(sites).length) {
 		// Opening already loaded layer.
@@ -192,6 +198,7 @@ function createMarker(latLon) {
 async function redraw() {
 	const interpolator = await getLatLonInterpolator();
 	const mapBounds = map.getBounds();
+	const displayed = [];
 	for (const latLon in sites) {
 		const flights = sites[latLon].reduce((acc, site) => Math.max(acc, site.flights), 0);
 		if (map.getZoom() > (flights > 100 ? 4 : (flights > 10 ? 7 : 8)) && mapBounds.contains(getLatLon(latLon))) {
@@ -212,9 +219,25 @@ async function redraw() {
 			}
 			updateMarker(latLon);
 			markers[latLon].addTo(map);
+			displayed.push(latLon);
 		} else if (markers[latLon]) {
 			markers[latLon].remove();
 		}
+	}
+	displayed.sort((a, b) => sites[a].every(isSiteForbidden) - sites[b].every(isSiteForbidden) || sites[b][0].flights - sites[a][0].flights);
+	Object.values(names).forEach(name => name.remove());
+	for (let i=0; i < 10 && i < displayed.length; i++) {
+		const latLon = displayed[i];
+		if (!names[latLon]) {
+			const labels = commonPrefix(sites[latLon].map(site => html(site.name)));
+			const icon = L.divIcon({
+				html: labels.join('<br>'),
+				className: 'pgmapaName',
+				iconSize: [120, labels.length * 15],
+			});
+			names[latLon] = L.marker(getLatLon(latLon), {icon}).on('click', () => markers[latLon].openPopup());
+		}
+		names[latLon].addTo(map);
 	}
 	if (activeMarker) {
 		activeMarker.fire('popupopen');
@@ -785,6 +808,21 @@ function getCurrentHour(airData) {
 function translate(english, czech) {
 	const lang = store.get('lang');
 	return (lang == 'auto' ? store.get('usedLang') : lang) == 'cs' ? czech : english;
+}
+
+/** Gets common prefix.
+ * @param {Array<string>} strings
+ * @return {Array<string>}
+ */
+function commonPrefix(strings) {
+	let length = 0;
+	for (const part of strings[0].split(/(?!\p{L})/u)) {
+		if (strings.some(s => s.substr(length, part.length) != part)) {
+			break;
+		}
+		length += part.length;
+	}
+	return length ? [strings[0].substring(0, length)] : strings;
 }
 
 /** Escapes special HTML characters.
