@@ -9,8 +9,8 @@ const __pluginConfig =  {
   "desktopUI": "embedded",
   "mobileUI": "small",
   "routerPath": "/pgmapa",
-  "built": 1746962922908,
-  "builtReadable": "2025-05-11T11:28:42.908Z",
+  "built": 1747039274756,
+  "builtReadable": "2025-05-12T08:41:14.756Z",
   "screenshot": "screenshot.png"
 };
 
@@ -825,10 +825,8 @@ function instance($$self, $$props, $$invalidate) {
 	function getModel() {
 		const product = store.get('product');
 
-		// https://github.com/windycom/windy-plugins/blob/master/docs/WINDY_API.md#module-plugin-data-loader
-		return ['gfs', 'icon', 'iconD2', 'iconEu'].indexOf(product) != -1
-		? product
-		: 'ecmwf';
+		// https://docs.windy-plugins.com/api/modules/fetch.html#getpointforecastdata
+		return product;
 	}
 
 	function getApiUrl() {
@@ -1126,7 +1124,7 @@ function instance($$self, $$props, $$invalidate) {
 			? ''
 			: '_night_' + data.moonPhase);
 
-			extra.push('<a' + getForecastAttrs(latLon) + '>' + '<img src="https://www.windy.com/img/icons7/png_25px/' + icon + '.png" style="height: 1.3em; vertical-align: middle;" title="' + translate('weather', 'počasí') + ' ' + model + '"></a>' + (data.mm
+			extra.push('<a' + getForecastAttrs(latLon) + '>' + '<img src="https://www.windy.com/img/icons7/png_25px/' + icon + '.png" style="height: 1.3em; vertical-align: middle;" title="' + translate('weather', 'počasí') + ' ' + forecast.header.model + '"></a>' + (data.mm
 			? ' <span title="' + translate('precipitation', 'srážky') + '">' + data.mm + ' mm</span>'
 			: ''));
 		}

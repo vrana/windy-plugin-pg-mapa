@@ -17,8 +17,8 @@ function onLaunchLoad() {
  */
 function getModel() {
 	const product = store.get('product');
-	// https://github.com/windycom/windy-plugins/blob/master/docs/WINDY_API.md#module-plugin-data-loader
-	return ['gfs', 'icon', 'iconD2', 'iconEu'].indexOf(product) != -1 ? product : 'ecmwf';
+	// https://docs.windy-plugins.com/api/modules/fetch.html#getpointforecastdata
+	return product;
 }
 
 function getLaunchAttrs(site) {
@@ -340,7 +340,7 @@ function getTooltip(latLon) {
 		const sunset = new Date(forecast.header.sunset).getHours();
 		const icon = data.icon + (data.hour > sunrise && data.hour <= sunset ? '' : '_night_' + data.moonPhase);
 		extra.push('<a' + getForecastAttrs(latLon) + '>'
-			+ '<img src="https://www.windy.com/img/icons7/png_25px/' + icon + '.png" style="height: 1.3em; vertical-align: middle;" title="' + translate('weather', 'počasí') + ' ' + model + '"></a>'
+			+ '<img src="https://www.windy.com/img/icons7/png_25px/' + icon + '.png" style="height: 1.3em; vertical-align: middle;" title="' + translate('weather', 'počasí') + ' ' + forecast.header.model + '"></a>'
 			+ (data.mm ? ' <span title="' + translate('precipitation', 'srážky') + '">' + data.mm + ' mm</span>' : '')
 		);
 	}
