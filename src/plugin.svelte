@@ -21,6 +21,15 @@ function getModel() {
 	return product;
 }
 
+/** Gets model usable for airData.
+ * @return {string}
+ */
+function getAirdataModel() {
+	const product = store.get('product');
+	// https://docs.windy-plugins.com/api/modules/fetch.html#getmeteogramforecastdata
+	return product; // models with elevation
+}
+
 function getLaunchAttrs(site) {
 	return ' href="' + site.url + '" target="_blank"';
 }
@@ -128,7 +137,7 @@ const forecasts = {};
  */
 let AirData;
 /** @type {Object<string, Object<string, AirData>>} key: model, key2: latLon */
-const airDatas = {ecmwf: {}};
+const airDatas = {};
 /** @type {boolean} Whether to display sounding. */
 let displaySounding = false;
 
@@ -185,9 +194,13 @@ function createMarker(latLon) {
 	marker.on('popupopen', () => {
 		activeMarker = marker;
 		loadForecast(latLon);
-		if (!airDatas['ecmwf'][latLon]) {
-			windyFetch.getMeteogramForecastData('ecmwf', Object.assign({step: 1}, getLatLon(latLon))).then(airData => {
-				airDatas['ecmwf'][latLon] = airData.data;
+		const model = getAirdataModel();
+		if (!airDatas[model]) {
+			airDatas[model] = {};
+		}
+		if (!airDatas[model][latLon]) {
+			windyFetch.getMeteogramForecastData(model, Object.assign({step: 1}, getLatLon(latLon))).then(airData => {
+				airDatas[model][latLon] = airData.data;
 				markers[latLon].setPopupContent(getTooltip(latLon));
 			});
 		}
@@ -303,9 +316,10 @@ function getUrlLink(url) {
 function getTooltip(latLon) {
 	const localSites = sites[latLon];
 	const model = getModel();
+	const airdataModel = getAirdataModel();
 	const wind = getWind(latLon);
 	const forecast = forecasts[model] && forecasts[model][latLon];
-	const airData = airDatas['ecmwf'][latLon]; // ECMWF predicts height the best.
+	const airData = airDatas[airdataModel] && airDatas[airdataModel][latLon];
 	const colors = ['green', 'orange', 'gray', 'red'];
 	const tooltips = localSites.map(site => {
 		return '<b style="font-size: 1.25em;' + (site.name.length >= 20 ? 'text-overflow: ellipsis; max-width: 180px; display: inline-block; overflow: hidden; vertical-align: text-bottom;" title="' + html(site.name) : '') + '"><a' + getLaunchAttrs(site)
@@ -365,17 +379,17 @@ function getTooltip(latLon) {
 		s = names.length ? names.join(' ') : s;
 	}
 	const t = store.get('path').replace(/(\d{4})\/?(\d{2})\/?(\d{2})\/?(\d+)/, (match, year, month, day, hour) => year + '-' + month + '-' + day + 'T' + String(Math.round(hour / 3) * 3).padStart(2, 0) + ':00:00Z');
-	const [ceiling, cloudBase] = (airData ? computeCeiling(airData) : [0, false]);
+	const [ceiling, cloudBase] = (airData && airData.header.modelElevation ? computeCeiling(airData) : [0, false]);
 	extra.push((cloudBase ? translate('Cloud base', 'Základny') : translate('Cloudless', 'Bezoblačná')) + ':'
 		+ ' <a class="climb" href="http://www.xcmeteo.net/?p=' + latLon.replace(/(.+) (.+)/, '$2x$1') + ',t=' + t + ',s=' + encodeURIComponent(s) + '" target="_blank" title="' + (airData ? translate('source', 'zdroj') + ': Windy ' + airData.header.model : '') + '">'
-		+ (airData ? Math.round(ceiling / 10) * 10 + ' m' : '-')
+		+ (airData && airData.header.modelElevation ? Math.round(ceiling / 10) * 10 + ' m' : '-')
 		+ '</a>' + (displaySounding ? ' <a href="https://pg.vrana.cz/gfs/#explain" target="_blank"><sup>?</sup></a>' : '')
 	);
 	tooltips.push(extra.join(' '), '');
 	const div = document.createElement('div');
 	div.style.whiteSpace = 'nowrap';
 	div.innerHTML = tooltips.join('<br>');
-	if (airData) {
+	if (airData && airData.header.modelElevation) {
 		if (displaySounding) {
 			div.appendChild(showSounding(airData));
 		}
