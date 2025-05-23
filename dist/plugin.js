@@ -9,8 +9,8 @@ const __pluginConfig =  {
   "desktopUI": "embedded",
   "mobileUI": "small",
   "routerPath": "/pgmapa",
-  "built": 1747993835145,
-  "builtReadable": "2025-05-23T09:50:35.145Z",
+  "built": 1747993938369,
+  "builtReadable": "2025-05-23T09:52:18.370Z",
   "screenshot": "screenshot.png"
 };
 
@@ -1187,7 +1187,9 @@ function instance($$self, $$props, $$invalidate) {
 
 		extra.push((cloudBase
 		? translate('Cloud base', 'Základny')
-		: translate('Cloudless', 'Bezoblačná')) + ':' + ' <a class="climb" href="http://www.xcmeteo.net/?p=' + latLon.replace(/(.+) (.+)/, '$2x$1') + ',t=' + t + ',s=' + encodeURIComponent(s) + '" target="_blank" title="' + (airData
+		: ceiling
+			? translate('Cloudless', 'Bezoblačná')
+			: translate('Reach', 'Dostupy')) + ':' + ' <a class="climb" href="http://www.xcmeteo.net/?p=' + latLon.replace(/(.+) (.+)/, '$2x$1') + ',t=' + t + ',s=' + encodeURIComponent(s) + '" target="_blank" title="' + (airData
 		? translate('source', 'zdroj') + ': Windy ' + airData.header.model
 		: '') + '">' + (getElevation(airData)
 		? Math.round(ceiling / 10) * 10 + ' m'

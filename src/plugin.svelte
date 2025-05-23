@@ -380,7 +380,7 @@ function getTooltip(latLon) {
 	}
 	const t = store.get('path').replace(/(\d{4})\/?(\d{2})\/?(\d{2})\/?(\d+)/, (match, year, month, day, hour) => year + '-' + month + '-' + day + 'T' + String(Math.round(hour / 3) * 3).padStart(2, 0) + ':00:00Z');
 	const [ceiling, cloudBase] = (getElevation(airData) ? computeCeiling(airData) : [0, false]);
-	extra.push((cloudBase ? translate('Cloud base', 'Základny') : translate('Cloudless', 'Bezoblačná')) + ':'
+	extra.push((cloudBase ? translate('Cloud base', 'Základny') : (ceiling ? translate('Cloudless', 'Bezoblačná') : translate('Reach', 'Dostupy'))) + ':'
 		+ ' <a class="climb" href="http://www.xcmeteo.net/?p=' + latLon.replace(/(.+) (.+)/, '$2x$1') + ',t=' + t + ',s=' + encodeURIComponent(s) + '" target="_blank" title="' + (airData ? translate('source', 'zdroj') + ': Windy ' + airData.header.model : '') + '">'
 		+ (getElevation(airData) ? Math.round(ceiling / 10) * 10 + ' m' : '-')
 		+ '</a>' + (displaySounding ? ' <a href="https://pg.vrana.cz/gfs/#explain" target="_blank"><sup>?</sup></a>' : '')
