@@ -27,7 +27,7 @@ function getModel() {
 function getAirdataModel() {
 	const product = store.get('product');
 	// https://docs.windy-plugins.com/api/modules/fetch.html#getmeteogramforecastdata
-	return product; // models with elevation
+	return product; // models with airData and modelElevation or elevation
 }
 
 function getLaunchAttrs(site) {
@@ -127,7 +127,7 @@ let ForecastArray;
  *   data: Object<string, Array<ForecastArray>>,
  * }>>} key: model, key2: latLon, key in data: day */
 const forecasts = {};
-/** @typedef {{header: {modelElevation: ?number}, data: {
+/** @typedef {{header: {elevation: ?number, modelElevation: ?number}, data: {
  *   hours: Array<number>,
  *   dewpoint-surface: Array<number>,
  *   temp-surface: Array<number>,
@@ -379,17 +379,17 @@ function getTooltip(latLon) {
 		s = names.length ? names.join(' ') : s;
 	}
 	const t = store.get('path').replace(/(\d{4})\/?(\d{2})\/?(\d{2})\/?(\d+)/, (match, year, month, day, hour) => year + '-' + month + '-' + day + 'T' + String(Math.round(hour / 3) * 3).padStart(2, 0) + ':00:00Z');
-	const [ceiling, cloudBase] = (airData && airData.header.modelElevation ? computeCeiling(airData) : [0, false]);
+	const [ceiling, cloudBase] = (getElevation(airData) ? computeCeiling(airData) : [0, false]);
 	extra.push((cloudBase ? translate('Cloud base', 'Základny') : translate('Cloudless', 'Bezoblačná')) + ':'
 		+ ' <a class="climb" href="http://www.xcmeteo.net/?p=' + latLon.replace(/(.+) (.+)/, '$2x$1') + ',t=' + t + ',s=' + encodeURIComponent(s) + '" target="_blank" title="' + (airData ? translate('source', 'zdroj') + ': Windy ' + airData.header.model : '') + '">'
-		+ (airData && airData.header.modelElevation ? Math.round(ceiling / 10) * 10 + ' m' : '-')
+		+ (getElevation(airData) ? Math.round(ceiling / 10) * 10 + ' m' : '-')
 		+ '</a>' + (displaySounding ? ' <a href="https://pg.vrana.cz/gfs/#explain" target="_blank"><sup>?</sup></a>' : '')
 	);
 	tooltips.push(extra.join(' '), '');
 	const div = document.createElement('div');
 	div.style.whiteSpace = 'nowrap';
 	div.innerHTML = tooltips.join('<br>');
-	if (airData && airData.header.modelElevation) {
+	if (getElevation(airData)) {
 		if (displaySounding) {
 			div.appendChild(showSounding(airData));
 		}
@@ -612,9 +612,9 @@ function svgText(svg, textContent, x, y, color, attributes = {}) {
 }
 
 function interpolate(airData, layer, hour, height) {
-	const {header, data} = airData;
+	const {data} = airData;
 	let above = {value: Infinity};
-	let below = {key: 'surface', value: header.modelElevation};
+	let below = {key: 'surface', value: getElevation(airData)};
 	for (const key in data) {
 		const match = /^gh-(.+)/.exec(key);
 		const value = data[key][hour];
@@ -662,12 +662,12 @@ function showSounding(airData) {
 		svgLine(svg, [[20, i], [420, i]], '#bbb', .5);
 		svgLine(svg, [[20 + i, 0], [20 + i, 400]], '#bbb', .5);
 	}
-	const {header, data} = airData;
+	const {data} = airData;
 	const hour = getCurrentHour(airData);
 	const layers = {temp: [], dewpoint: [], wind_u: [], wind_v: []};
 	let maxTemp = -Infinity;
 	const zeroK = -273.15;
-	const ground = header.modelElevation;
+	const ground = getElevation(airData);
 	const ceiling = 4000 + Math.floor(ground / 500) * 500;
 	for (const key in data) {
 		const match = /^(temp|dewpoint|wind_u|wind_v)-(.+)/.exec(key);
@@ -764,9 +764,9 @@ function showSounding(airData) {
  * @return [number, boolean] [Altitude in meters, is cloud base]
  */
 function computeCeiling(airData) {
-	const {header, data} = airData;
+	const {data} = airData;
 	const hour = getCurrentHour(airData);
-	const elevation = header.modelElevation;
+	const elevation = getElevation(airData);
 	let dryAdiabatTemp = data['temp-surface'][hour];
 	// TODO: This depends on pressure: http://slovnik.cmes.cz/heslo/9
 	const cloudBase = elevation + (dryAdiabatTemp - data['dewpoint-surface'][hour]) * 122;
@@ -812,6 +812,10 @@ function getCurrentHour(airData) {
 		hour = key;
 	}
 	return hour;
+}
+
+function getElevation(airData) {
+	return airData && airData.data['temp-1000h'][0] && (airData.header.modelElevation || airData.header.elevation);
 }
 
 /** Gets translation.
