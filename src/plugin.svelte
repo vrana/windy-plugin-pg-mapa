@@ -378,7 +378,7 @@ function getTooltip(latLon) {
 		const names = Object.keys(words).filter(word => words[word] == localSites.length);
 		s = names.length ? names.join(' ') : s;
 	}
-	const t = store.get('path').replace(/(\d{4})\/?(\d{2})\/?(\d{2})\/?(\d+)/, (match, year, month, day, hour) => year + '-' + month + '-' + day + 'T' + String(Math.round(hour / 3) * 3).padStart(2, 0) + ':00:00Z');
+	const t = store.get('calendar').ts2path(store.get('timestamp')).replace(/(\d{4})(\d{2})(\d{2})(\d+)/, (match, year, month, day, hour) => year + '-' + month + '-' + day + 'T' + String(Math.round(hour / 3) * 3).padStart(2, 0) + ':00:00Z');
 	const [ceiling, cloudBase] = (getElevation(airData) ? computeCeiling(airData) : [0, false]);
 	extra.push((cloudBase ? translate('Cloud base', 'Základny') : (ceiling ? translate('Cloudless', 'Bezoblačná') : translate('Reach', 'Dostupy'))) + ':'
 		+ ' <a class="climb" href="http://www.xcmeteo.net/?p=' + latLon.replace(/(.+) (.+)/, '$2x$1') + ',t=' + t + ',s=' + encodeURIComponent(s) + '" target="_blank" title="' + (airData ? translate('source', 'zdroj') + ': Windy ' + airData.header.model : '') + '">'
@@ -581,7 +581,7 @@ function getLatLon(latLon) {
  */
 function getWindsKey(latLon) {
 	return (store.get('overlay') == 'wind' ? store.get('product') + ':' + store.get('level') : getModel() + ':surface')
-		+ ':' + store.get('path')
+		+ ':' + store.get('calendar').ts2path(store.get('timestamp'))
 		+ ':' + latLon
 	;
 }

@@ -1,12 +1,12 @@
 {
   "name": "windy-plugin-pg-mapa",
   "type": "module",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "description": "Windy plugin for paragliding takeoffs.",
   "main": "dist/plugin.js",
   "scripts": {
     "build": "rm -rf dist && mkdir dist && SERVE=false rollup -c && cp package.json dist/",
-    "start": "rollup -w -c",
+    "start": "rollup -w -c --watch.buildDelay 100",
     "prepublishOnly": "node ./test/prepublish.js",
     "test": "node ./test/prepublish.js"
   },
