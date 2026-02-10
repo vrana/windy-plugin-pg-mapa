@@ -63,9 +63,10 @@ export const onopen = function () {
 }
 
 onDestroy(() => {
-	Object.values(markers).forEach(marker => marker.remove());
-	Object.values(names).forEach(name => name.remove());
+	Object.values(markers).forEach(removeMarker);
+	Object.values(names).forEach(removeMarker);
 	broadcast.off('redrawFinished', redraw);
+	map.off('moveend', redraw);
 });
 
 // Same as https://pg.vrana.cz/mapa/ from here.
@@ -146,6 +147,7 @@ function init() {
 	style.textContent = '.pgmapaName { text-align: center; color: yellow; text-shadow: 1px 0 #000, 0 1px #000, -1px 0 #000, 0 -1px #000; line-height: 1.2; white-space: pre; }';
 	document.head.appendChild(style);
 	broadcast.on('redrawFinished', redraw);
+	map.on('moveend', redraw);
 	if (Object.keys(sites).length) {
 		// Opening already loaded layer.
 		return;
@@ -183,7 +185,7 @@ function init() {
 }
 
 function createMarker(latLon) {
-	const marker = L.marker(getLatLon(latLon), {
+	const marker = new L.marker(getLatLon(latLon), {
 		icon: newIcon(getIconUrl(sites[latLon], null), sites[latLon]),
 		riseOnHover: true,
 		title: sites[latLon].map(site => site.name + (site.superelevation ? ' (' + site.superelevation + ' m)' : '')).join('\n'),
@@ -214,15 +216,17 @@ async function redraw() {
 	const displayed = [];
 	for (const latLon in sites) {
 		const flights = sites[latLon].reduce((acc, site) => Math.max(acc, site.flights), 0);
-		if (map.getZoom() > (flights > 100 ? 4 : (flights > 10 ? 7 : 8)) && mapBounds.contains(getLatLon(latLon))) {
+		if (map.getZoom() >= (flights > 100 ? 5 : (flights > 10 ? 8 : 9)) && mapBounds.contains(getLatLon(latLon))) {
 			if (!markers[latLon]) {
 				markers[latLon] = createMarker(latLon);
 			}
 			if (!winds[getWindsKey(latLon)]) {
 				if (store.get('overlay') == 'wind') {
 					// If the displayed overlay is 'wind' then use it.
-					const data = interpolator(getLatLon(latLon));
-					winds[getWindsKey(latLon)] = data && utils.wind2obj(data);
+					interpolator(getLatLon(latLon)).then(data => {
+						winds[getWindsKey(latLon)] = data && utils.wind2obj(data);
+						updateMarker(latLon);
+					});
 				} else if (!loadForecast(latLon) && markers[latLon]._icon) {
 					// Preserve the old icon, just resize it.
 					const url = markers[latLon]._icon.src;
@@ -234,21 +238,21 @@ async function redraw() {
 			markers[latLon].addTo(map);
 			displayed.push(latLon);
 		} else if (markers[latLon]) {
-			markers[latLon].remove();
+			removeMarker(markers[latLon]);
 		}
 	}
 	displayed.sort((a, b) => sites[a].every(isSiteForbidden) - sites[b].every(isSiteForbidden) || sites[b][0].flights - sites[a][0].flights);
-	Object.values(names).forEach(name => name.remove());
+	Object.values(names).forEach(removeMarker);
 	for (let i=0; i < 10 && i < displayed.length; i++) {
 		const latLon = displayed[i];
 		if (!names[latLon]) {
 			const labels = commonPrefix(sites[latLon].map(site => html(site.name)));
-			const icon = L.divIcon({
+			const icon = new L.divIcon({
 				html: labels.join('<br>'),
 				className: 'pgmapaName',
 				iconSize: [120, labels.length * 15],
 			});
-			names[latLon] = L.marker(getLatLon(latLon), {icon}).on('click', () => markers[latLon].openPopup());
+			names[latLon] = new L.marker(getLatLon(latLon), {icon}).on('click', () => markers[latLon].openPopup());
 		}
 		names[latLon].addTo(map);
 	}
@@ -296,6 +300,13 @@ function updateMarker(latLon) {
 	markers[latLon].setIcon(newIcon(getIconUrl(sites[latLon], wind), sites[latLon]));
 	markers[latLon].setOpacity(color != 'red' && color != 'silver' ? 1 : .6);
 	markers[latLon].setPopupContent(getTooltip(latLon));
+}
+
+/** Removes a marker from the map.
+ * @param L.Marker
+ */
+function removeMarker(marker) {
+	marker.map && marker.remove();
 }
 
 function getUrlLink(url) {
@@ -542,10 +553,11 @@ function newIcon(url, site) {
 	} else if (amount < 100) {
 		size *= 3/4;
 	}
-	return L.icon({
+	return new L.icon({
 		iconUrl: url,
 		iconSize: [size, size],
 		iconAnchor: [(size - 1) / 2, (size - 1) / 2],
+		shadowUrl: null,
 	});
 }
 

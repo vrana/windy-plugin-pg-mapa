@@ -22,3 +22,9 @@ It highlights takeoffs with usable wind direction. Colors:
 - **white**: wind data not loaded
 
 Other data (such as rain or gusts) is not taken into account.
+
+## Development
+
+- `npm start`
+- https://www.windy.com/dev
+- https://github.com/vrana/windy-plugin-pg-mapa/actions/workflows/publish-plugin.yml

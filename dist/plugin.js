@@ -1,6 +1,6 @@
 const __pluginConfig =  {
   "name": "windy-plugin-pg-mapa",
-  "version": "2.3.2",
+  "version": "2.3.3",
   "icon": "🪂",
   "title": "Paragliding Mapa",
   "description": "Windy plugin for paragliding takeoffs.",
@@ -9,8 +9,8 @@ const __pluginConfig =  {
   "desktopUI": "embedded",
   "mobileUI": "small",
   "routerPath": "/pgmapa",
-  "built": 1755791363526,
-  "builtReadable": "2025-08-21T15:49:23.526Z",
+  "built": 1770734529916,
+  "builtReadable": "2026-02-10T14:42:09.916Z",
   "screenshot": "screenshot.png"
 };
 
@@ -562,6 +562,13 @@ function getForecastAttrs(latLon) {
 	return ' href=\'javascript:W.broadcast.fire("rqstOpen", "detail", ' + JSON.stringify(Object.assign(getLatLon(latLon), { 'display': 'meteogram' })) + ');\'';
 }
 
+/** Removes a marker from the map.
+ * @param L.Marker
+ */
+function removeMarker(marker) {
+	marker.map && marker.remove();
+}
+
 function getUrlLink(url) {
 	if ((/paragliding-mapa\.cz/).test(url)) {
 		return ' <a href="' + url + '" target="_blank"><img src="https://www.paragliding-mapa.cz/favicon/favicon-32x32.png" width="12" height="12" alt="" title="Paragliding Mapa"></a>';
@@ -859,9 +866,10 @@ function instance($$self, $$props, $$invalidate) {
 	};
 
 	onDestroy(() => {
-		Object.values(markers).forEach(marker => marker.remove());
-		Object.values(names).forEach(name => name.remove());
+		Object.values(markers).forEach(removeMarker);
+		Object.values(names).forEach(removeMarker);
 		broadcast.off('redrawFinished', redraw);
+		map.off('moveend', redraw);
 	});
 
 	/** @type {Object<string, Array<Site>>} key: latLon */
@@ -896,6 +904,7 @@ function instance($$self, $$props, $$invalidate) {
 		style.textContent = '.pgmapaName { text-align: center; color: yellow; text-shadow: 1px 0 #000, 0 1px #000, -1px 0 #000, 0 -1px #000; line-height: 1.2; white-space: pre; }';
 		document.head.appendChild(style);
 		broadcast.on('redrawFinished', redraw);
+		map.on('moveend', redraw);
 
 		if (Object.keys(sites).length) {
 			// Opening already loaded layer.
@@ -943,13 +952,14 @@ function instance($$self, $$props, $$invalidate) {
 	}
 
 	function createMarker(latLon) {
-		const marker = L.marker(getLatLon(latLon), {
-			icon: newIcon(getIconUrl(sites[latLon], null), sites[latLon]),
-			riseOnHover: true,
-			title: sites[latLon].map(site => site.name + (site.superelevation
-			? ' (' + site.superelevation + ' m)'
-			: '')).join('\n')
-		});
+		const marker = new L.marker(getLatLon(latLon),
+		{
+				icon: newIcon(getIconUrl(sites[latLon], null), sites[latLon]),
+				riseOnHover: true,
+				title: sites[latLon].map(site => site.name + (site.superelevation
+				? ' (' + site.superelevation + ' m)'
+				: '')).join('\n')
+			});
 
 		// Leaflet supports binding function but that function is called only the first time the popup is opened.
 		marker.bindPopup(getTooltip(latLon), {
@@ -987,7 +997,7 @@ function instance($$self, $$props, $$invalidate) {
 		for (const latLon in sites) {
 			const flights = sites[latLon].reduce((acc, site) => Math.max(acc, site.flights), 0);
 
-			if (map.getZoom() > (flights > 100 ? 4 : flights > 10 ? 7 : 8) && mapBounds.contains(getLatLon(latLon))) {
+			if (map.getZoom() >= (flights > 100 ? 5 : flights > 10 ? 8 : 9) && mapBounds.contains(getLatLon(latLon))) {
 				if (!markers[latLon]) {
 					markers[latLon] = createMarker(latLon);
 				}
@@ -995,9 +1005,10 @@ function instance($$self, $$props, $$invalidate) {
 				if (!winds[getWindsKey(latLon)]) {
 					if (store.get('overlay') == 'wind') {
 						// If the displayed overlay is 'wind' then use it.
-						const data = interpolator(getLatLon(latLon));
-
-						winds[getWindsKey(latLon)] = data && utils.wind2obj(data);
+						interpolator(getLatLon(latLon)).then(data => {
+							winds[getWindsKey(latLon)] = data && utils.wind2obj(data);
+							updateMarker(latLon);
+						});
 					} else if (!loadForecast(latLon) && markers[latLon]._icon) {
 						// Preserve the old icon, just resize it.
 						const url = markers[latLon]._icon.src;
@@ -1011,12 +1022,12 @@ function instance($$self, $$props, $$invalidate) {
 				markers[latLon].addTo(map);
 				displayed.push(latLon);
 			} else if (markers[latLon]) {
-				markers[latLon].remove();
+				removeMarker(markers[latLon]);
 			}
 		}
 
 		displayed.sort((a, b) => sites[a].every(isSiteForbidden) - sites[b].every(isSiteForbidden) || sites[b][0].flights - sites[a][0].flights);
-		Object.values(names).forEach(name => name.remove());
+		Object.values(names).forEach(removeMarker);
 
 		for (let i = 0; i < 10 && i < displayed.length; i++) {
 			const latLon = displayed[i];
@@ -1024,13 +1035,13 @@ function instance($$self, $$props, $$invalidate) {
 			if (!names[latLon]) {
 				const labels = commonPrefix(sites[latLon].map(site => html(site.name)));
 
-				const icon = L.divIcon({
-					html: labels.join('<br>'),
-					className: 'pgmapaName',
-					iconSize: [120, labels.length * 15]
-				});
+				const icon = new L.divIcon({
+						html: labels.join('<br>'),
+						className: 'pgmapaName',
+						iconSize: [120, labels.length * 15]
+					});
 
-				names[latLon] = L.marker(getLatLon(latLon), { icon }).on('click', () => markers[latLon].openPopup());
+				names[latLon] = new L.marker(getLatLon(latLon), { icon }).on('click', () => markers[latLon].openPopup());
 			}
 
 			names[latLon].addTo(map);
@@ -1265,11 +1276,12 @@ function instance($$self, $$props, $$invalidate) {
 			size *= 3 / 4;
 		}
 
-		return L.icon({
-			iconUrl: url,
-			iconSize: [size, size],
-			iconAnchor: [(size - 1) / 2, (size - 1) / 2]
-		});
+		return new L.icon({
+				iconUrl: url,
+				iconSize: [size, size],
+				iconAnchor: [(size - 1) / 2, (size - 1) / 2],
+				shadowUrl: null
+			});
 	}
 
 	/** Gets key used for winds cache.
