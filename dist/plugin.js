@@ -1,6 +1,6 @@
 const __pluginConfig =  {
   "name": "windy-plugin-pg-mapa",
-  "version": "2.3.3",
+  "version": "2.3.4",
   "icon": "🪂",
   "title": "Paragliding Mapa",
   "description": "Windy plugin for paragliding takeoffs.",
@@ -9,8 +9,8 @@ const __pluginConfig =  {
   "desktopUI": "embedded",
   "mobileUI": "small",
   "routerPath": "/pgmapa",
-  "built": 1770734529916,
-  "builtReadable": "2026-02-10T14:42:09.916Z",
+  "built": 1773763609004,
+  "builtReadable": "2026-03-17T16:06:49.004Z",
   "screenshot": "screenshot.png"
 };
 
@@ -1128,7 +1128,7 @@ function instance($$self, $$props, $$invalidate) {
 			? site.parkings.map(parking => ' <a href="https://www.google.com/maps/dir/?api=1&destination=' + parking.latitude + ',' + parking.longitude + '" target="_blank"><img src="https://www.google.com/images/branding/product/ico/maps15_bnuw3a_32dp.ico" width="12" height="12" alt="" title="' + translate('parking', 'parkoviště') + html(parking.name == site.name && site.parkings.length == 1
 				? ''
 				: ' ' + parking.name) + '" style="vertical-align: middle;"></a>').join('')
-			: ' <a href="https://www.google.com/maps/dir/?api=1&destination=' + site.latitude + ',' + site.longitude + '" target="_blank"><img src="https://www.google.com/images/branding/product/ico/maps15_bnuw3a_32dp.ico" width="12" height="12" alt="" title="' + translate('takeoff', 'startovačka') + '" style="vertical-align: middle;"></a>') + ' <a href="https://mapy.cz/turisticka?source=coor&id=' + site.longitude + ',' + site.latitude + '" target="_blank"><img src="https://mapy.com/img/favicon/common/plain/favicon-16x16.png" width="12" height="12" alt="" title="' + translate('takeoff', 'startovačka') + '" style="vertical-align: middle;"></a>' + getLaunchExtra();
+			: ' <a href="https://www.google.com/maps/dir/?api=1&destination=' + site.latitude + ',' + site.longitude + '" target="_blank"><img src="https://www.google.com/images/branding/product/ico/maps15_bnuw3a_32dp.ico" width="12" height="12" alt="" title="' + translate('takeoff', 'startovačka') + '" style="vertical-align: middle;"></a>') + ' <a href="https://mapy.com/' + translate('en', 'cs') + '/turisticka?source=coor&id=' + site.longitude + ',' + site.latitude + '" target="_blank"><img src="https://mapy.com/img/favicon/common/plain/favicon-16x16.png" width="12" height="12" alt="" title="' + translate('takeoff', 'startovačka') + '" style="vertical-align: middle;"></a>' + getLaunchExtra();
 		});
 
 		const data = forecast && !(/FAKE/).test(forecast.header.note) && getForecast(forecast);
