@@ -67,6 +67,7 @@ onDestroy(() => {
 	Object.values(names).forEach(removeMarker);
 	broadcast.off('redrawFinished', redraw);
 	map.off('moveend', redraw);
+	store.off('timestamp', redraw);
 });
 
 // Same as https://pg.vrana.cz/mapa/ from here.
@@ -148,6 +149,7 @@ function init() {
 	document.head.appendChild(style);
 	broadcast.on('redrawFinished', redraw);
 	map.on('moveend', redraw);
+	store.on('timestamp', redraw);
 	if (Object.keys(sites).length) {
 		// Opening already loaded layer.
 		return;
