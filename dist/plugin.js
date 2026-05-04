@@ -1,6 +1,6 @@
 const __pluginConfig =  {
   "name": "windy-plugin-pg-mapa",
-  "version": "2.3.4",
+  "version": "2.3.5",
   "icon": "🪂",
   "title": "Paragliding Mapa",
   "description": "Windy plugin for paragliding takeoffs.",
@@ -9,8 +9,8 @@ const __pluginConfig =  {
   "desktopUI": "embedded",
   "mobileUI": "small",
   "routerPath": "/pgmapa",
-  "built": 1773763609004,
-  "builtReadable": "2026-03-17T16:06:49.004Z",
+  "built": 1777907517305,
+  "builtReadable": "2026-05-04T15:11:57.305Z",
   "screenshot": "screenshot.png"
 };
 
@@ -1171,7 +1171,7 @@ function instance($$self, $$props, $$invalidate) {
 		addLinks(localSites[0].link_meteo, translate('weather station', 'meteostanice'), '');
 		addLinks(localSites[0].link_webcam, translate('webcam', 'webkamera'), 'l');
 		let xcontestLink;
-		localSites.some(site => xcontestLink = [site.url].concat(site.urls || []).find(url => (/xcontest\.org/).test(url))); // flights-search requires login and it can include other sites.
+		localSites.some(site => xcontestLink = [site.url].concat(site.urls || []).find(url => (/\bxcontest\b/).test(url))); // flights-search requires login and it can include other sites.
 
 		extra.push('<a href="' + (xcontestLink || 'https://www.xcontest.org/world/en/flights-search/?list[sort]=pts&filter[point]=' + latLon.replace(/(.+) (.+)/, '$2+$1') + '&filter[radius]=2000&filter[date_mode]=period#filter-mode') + '" target="_blank"><img src="https://s.xcontest.org/img/xcontest.gif" width="25" height="12" alt="XContest" style="vertical-align: middle;"></a>' + (localSites[0].flights != null
 		? ' <span title="' + translate('per year', 'za rok') + '">(' + localSites[0].flights + ' ' + translate('flights', 'letů') + ')</span>,'

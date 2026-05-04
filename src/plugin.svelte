@@ -378,7 +378,7 @@ function getTooltip(latLon) {
 	addLinks(localSites[0].link_meteo, translate('weather station', 'meteostanice'), '');
 	addLinks(localSites[0].link_webcam, translate('webcam', 'webkamera'), 'l');
 	let xcontestLink;
-	localSites.some(site => xcontestLink = [site.url].concat(site.urls || []).find(url => /xcontest\.org/.test(url))); // flights-search requires login and it can include other sites.
+	localSites.some(site => xcontestLink = [site.url].concat(site.urls || []).find(url => /\bxcontest\b/.test(url))); // flights-search requires login and it can include other sites.
 	extra.push('<a href="' + (xcontestLink || 'https://www.xcontest.org/world/en/flights-search/?list[sort]=pts&filter[point]=' + latLon.replace(/(.+) (.+)/, '$2+$1') + '&filter[radius]=2000&filter[date_mode]=period#filter-mode') + '" target="_blank"><img src="https://s.xcontest.org/img/xcontest.gif" width="25" height="12" alt="XContest" style="vertical-align: middle;"></a>' + (localSites[0].flights != null ? ' <span title="' + translate('per year', 'za rok') + '">(' + localSites[0].flights + ' ' + translate('flights', 'letů') + ')</span>,' : ''));
 	let s = localSites[0].name;
 	if (localSites.length > 1) {
