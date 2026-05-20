@@ -1,6 +1,6 @@
 const __pluginConfig =  {
   "name": "windy-plugin-pg-mapa",
-  "version": "2.3.5",
+  "version": "2.3.6",
   "icon": "🪂",
   "title": "Paragliding Mapa",
   "description": "Windy plugin for paragliding takeoffs.",
@@ -9,8 +9,8 @@ const __pluginConfig =  {
   "desktopUI": "embedded",
   "mobileUI": "small",
   "routerPath": "/pgmapa",
-  "built": 1777907517305,
-  "builtReadable": "2026-05-04T15:11:57.305Z",
+  "built": 1784899247389,
+  "builtReadable": "2026-07-24T13:20:47.389Z",
   "screenshot": "screenshot.png"
 };
 
@@ -997,7 +997,9 @@ function instance($$self, $$props, $$invalidate) {
 		for (const latLon in sites) {
 			const flights = sites[latLon].reduce((acc, site) => Math.max(acc, site.flights), 0);
 
-			if (map.getZoom() >= (flights > 100 ? 5 : flights > 10 ? 8 : 9) && mapBounds.contains(getLatLon(latLon))) {
+			if (map.getZoom() >= (flights > 1000
+			? 5
+			: flights > 100 ? 7 : flights > 10 ? 8 : 10) && mapBounds.contains(getLatLon(latLon))) {
 				if (!markers[latLon]) {
 					markers[latLon] = createMarker(latLon);
 				}

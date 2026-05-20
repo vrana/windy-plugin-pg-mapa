@@ -216,7 +216,7 @@ async function redraw() {
 	const displayed = [];
 	for (const latLon in sites) {
 		const flights = sites[latLon].reduce((acc, site) => Math.max(acc, site.flights), 0);
-		if (map.getZoom() >= (flights > 100 ? 5 : (flights > 10 ? 8 : 9)) && mapBounds.contains(getLatLon(latLon))) {
+		if (map.getZoom() >= (flights > 1000 ? 5 : (flights > 100 ? 7 : (flights > 10 ? 8 : 10))) && mapBounds.contains(getLatLon(latLon))) {
 			if (!markers[latLon]) {
 				markers[latLon] = createMarker(latLon);
 			}
