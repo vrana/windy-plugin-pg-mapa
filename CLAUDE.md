@@ -65,8 +65,9 @@ This is essentially the Windy-embedded version of the standalone app at
 
 ## Conventions
 
-- **The version lives in two files and must be bumped together:** `version` in
-  [package.json](package.json) and `version` in [src/pluginConfig.ts](src/pluginConfig.ts).
+- **The version lives only in [src/pluginConfig.ts](src/pluginConfig.ts)** (`version`), which
+  feeds the generated `dist/plugin.json` that Windy reads. `package.json` no longer carries a
+  `version` field — the plugin is not distributed via npm.
 - The active takeoff data source is `getApiUrl()` in [src/plugin.svelte:37](src/plugin.svelte);
   commented-out alternatives (paragliding-mapa.cz, DHV, Paragliding Earth) sit right below it.
 - Indentation is tabs; several eslint rules (`indent`, `no-mixed-spaces-and-tabs`,
