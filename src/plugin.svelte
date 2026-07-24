@@ -200,6 +200,10 @@ function createMarker(latLon) {
 	});
 	// Leaflet supports binding function but that function is called only the first time the popup is opened.
 	marker.bindPopup(getTooltip(latLon), {minWidth: 200, maxWidth: 400, autoPan: false});
+	// Windy's leaflet-gl sometimes fires a marker click twice for one physical click; the second
+	// run of Leaflet's toggle in _openPopup then closes the popup right after it opened, so the
+	// bubble never displays. This handler runs after the toggle, making the popup always end open.
+	marker.on('click', () => marker.openPopup());
 	// Leaflet tooltips close when you hover the tooltip and they work poorly on mobile. Use popup instead.
 	marker.on('popupopen', () => {
 		activeMarker = marker;

@@ -9,8 +9,8 @@ const __pluginConfig =  {
   "desktopUI": "embedded",
   "mobileUI": "small",
   "routerPath": "/pgmapa",
-  "built": 1784899393590,
-  "builtReadable": "2026-07-24T13:23:13.590Z",
+  "built": 1784905525255,
+  "builtReadable": "2026-07-24T15:05:25.255Z",
   "screenshot": "screenshot.png"
 };
 
@@ -975,6 +975,11 @@ function instance($$self, $$props, $$invalidate) {
 			maxWidth: 400,
 			autoPan: false
 		});
+
+		// Windy's leaflet-gl sometimes fires a marker click twice for one physical click; the second
+		// run of Leaflet's toggle in _openPopup then closes the popup right after it opened, so the
+		// bubble never displays. This handler runs after the toggle, making the popup always end open.
+		marker.on('click', () => marker.openPopup());
 
 		// Leaflet tooltips close when you hover the tooltip and they work poorly on mobile. Use popup instead.
 		marker.on('popupopen', () => {
