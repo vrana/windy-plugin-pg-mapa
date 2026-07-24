@@ -148,7 +148,11 @@ let displaySounding = false;
 
 function init() {
 	const style = document.createElement('style');
-	style.textContent = '.pgmapaName { text-align: center; color: yellow; text-shadow: 1px 0 #000, 0 1px #000, -1px 0 #000, 0 -1px #000; line-height: 1.2; white-space: pre; }';
+	style.textContent = `
+.pgmapaName { text-align: center; color: yellow; text-shadow: 1px 0 #000, 0 1px #000, -1px 0 #000, 0 -1px #000; line-height: 1.2; white-space: pre; }
+.leaflet-marker-icon.pgmapaName { pointer-events: none; }
+.pgmapaName span { pointer-events: auto; }
+`;
 	document.head.appendChild(style);
 	broadcast.on('redrawFinished', redraw);
 	map.on('moveend', redraw);
@@ -252,7 +256,7 @@ async function redraw() {
 		if (!names[latLon]) {
 			const labels = commonPrefix(sites[latLon].map(site => html(site.name)));
 			const icon = new L.divIcon({
-				html: labels.join('<br>'),
+				html: '<span>' + labels.join('<br>') + '</span>',
 				className: 'pgmapaName',
 				iconSize: [120, labels.length * 15],
 			});

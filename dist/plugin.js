@@ -9,8 +9,8 @@ const __pluginConfig =  {
   "desktopUI": "embedded",
   "mobileUI": "small",
   "routerPath": "/pgmapa",
-  "built": 1784899352354,
-  "builtReadable": "2026-07-24T13:22:32.354Z",
+  "built": 1784899393590,
+  "builtReadable": "2026-07-24T13:23:13.590Z",
   "screenshot": "screenshot.png"
 };
 
@@ -903,7 +903,13 @@ function instance($$self, $$props, $$invalidate) {
 
 	function init() {
 		const style = document.createElement('style');
-		style.textContent = '.pgmapaName { text-align: center; color: yellow; text-shadow: 1px 0 #000, 0 1px #000, -1px 0 #000, 0 -1px #000; line-height: 1.2; white-space: pre; }';
+
+		style.textContent = `
+.pgmapaName { text-align: center; color: yellow; text-shadow: 1px 0 #000, 0 1px #000, -1px 0 #000, 0 -1px #000; line-height: 1.2; white-space: pre; }
+.leaflet-marker-icon.pgmapaName { pointer-events: none; }
+.pgmapaName span { pointer-events: auto; }
+`;
+
 		document.head.appendChild(style);
 		broadcast.on('redrawFinished', redraw);
 		map.on('moveend', redraw);
@@ -1040,7 +1046,7 @@ function instance($$self, $$props, $$invalidate) {
 				const labels = commonPrefix(sites[latLon].map(site => html(site.name)));
 
 				const icon = new L.divIcon({
-						html: labels.join('<br>'),
+						html: '<span>' + labels.join('<br>') + '</span>',
 						className: 'pgmapaName',
 						iconSize: [120, labels.length * 15]
 					});
