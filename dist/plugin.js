@@ -9,8 +9,8 @@ const __pluginConfig =  {
   "desktopUI": "embedded",
   "mobileUI": "small",
   "routerPath": "/pgmapa",
-  "built": 1784899247389,
-  "builtReadable": "2026-07-24T13:20:47.389Z",
+  "built": 1784899352354,
+  "builtReadable": "2026-07-24T13:22:32.354Z",
   "screenshot": "screenshot.png"
 };
 
@@ -888,9 +888,11 @@ function instance($$self, $$props, $$invalidate) {
 	const winds = {};
 
 	/** @type {Object<string, Object<string, {
- *   header: {note: string, sunrise: number, sunset: number},
+ *   header: {model: string},
+ *   celestial: {sunriseTs: number, sunsetTs: number},
+ *   summary: Array<Object>,
  *   data: Object<string, Array<ForecastArray>>,
- * }>>} key: model, key2: latLon, key in data: day */
+ * }>>} key: model, key2: latLon, key in data: parameter */
 	const forecasts = {};
 
 	/** @type {Object<string, Object<string, AirData>>} key: model, key2: latLon */
@@ -1066,7 +1068,7 @@ function instance($$self, $$props, $$invalidate) {
 			return true;
 		}
 
-		windyFetch.getPointForecastData(model, Object.assign({ step: 1 }, getLatLon(latLon)), 'detail').then(forecast => {
+		windyFetch.getDetailPointForecastData(Object.assign({ model, step: 1, days: 15 }, getLatLon(latLon))).then(forecast => {
 			forecasts[model][latLon] = forecast.data;
 
 			// After loading the forecast, update the tooltip and possibly also the icon.
@@ -1133,7 +1135,7 @@ function instance($$self, $$props, $$invalidate) {
 			: ' <a href="https://www.google.com/maps/dir/?api=1&destination=' + site.latitude + ',' + site.longitude + '" target="_blank"><img src="https://www.google.com/images/branding/product/ico/maps15_bnuw3a_32dp.ico" width="12" height="12" alt="" title="' + translate('takeoff', 'startovačka') + '" style="vertical-align: middle;"></a>') + ' <a href="https://mapy.com/' + translate('en', 'cs') + '/turisticka?source=coor&id=' + site.longitude + ',' + site.latitude + '" target="_blank"><img src="https://mapy.com/img/favicon/common/plain/favicon-16x16.png" width="12" height="12" alt="" title="' + translate('takeoff', 'startovačka') + '" style="vertical-align: middle;"></a>' + getLaunchExtra();
 		});
 
-		const data = forecast && !(/FAKE/).test(forecast.header.note) && getForecast(forecast);
+		const data = forecast && getForecast(forecast);
 		let extra = [];
 
 		if (wind) {
@@ -1142,23 +1144,16 @@ function instance($$self, $$props, $$invalidate) {
 			? translate('on surface', 'na zemi')
 			: translate('at', 'v') + ' ' + store.get('level'));
 
-			extra.push('<a' + getWindAttrs(latLon) + '>' + '<span style="color: ' + colors[getDirIndex(localSites, wind.dir)] + ';" title="' + translate('wind direction', 'směr větru') + windHeight + '">' + '<span style="display: inline-block; transform: rotate(' + wind.dir + 'deg)">↓</span> ' + wind.dir + '°</span>' + ' <span style="color: ' + colors[getSpeedIndex(wind.wind)] + ';" title="' + translate('wind speed', 'rychlost větru') + windHeight + '">' + wind.wind.toFixed(1) + ' m/s' + (data && data.gust != null
-			? ',</span> <span style="color: ' + colors[getSpeedIndex(data.gust - 4)] + ';" title="' + translate('gusts on surface', 'nárazy na zemi') + '">G: ' + data.gust.toFixed(1) + ' m/s'
+			extra.push('<a' + getWindAttrs(latLon) + '>' + '<span style="color: ' + colors[getDirIndex(localSites, wind.dir)] + ';" title="' + translate('wind direction', 'směr větru') + windHeight + '">' + '<span style="display: inline-block; transform: rotate(' + wind.dir + 'deg)">↓</span> ' + wind.dir + '°</span>' + ' <span style="color: ' + colors[getSpeedIndex(wind.wind)] + ';" title="' + translate('wind speed', 'rychlost větru') + windHeight + '">' + wind.wind.toFixed(1) + ' m/s' + (data && data.windGust != null
+			? ',</span> <span style="color: ' + colors[getSpeedIndex(data.windGust - 4)] + ';" title="' + translate('gusts on surface', 'nárazy na zemi') + '">G: ' + data.windGust.toFixed(1) + ' m/s'
 			: '') + '</span></a>');
 		}
 
 		if (data) {
-			// We don't have data about twilight, use sunrise and sunset instead.
-			const sunrise = new Date(forecast.header.sunrise).getHours();
+			const icon = data.icon + (data.isDay > 0 ? '' : '_night_' + data.moonPhase);
 
-			const sunset = new Date(forecast.header.sunset).getHours();
-
-			const icon = data.icon + (data.hour > sunrise && data.hour <= sunset
-			? ''
-			: '_night_' + data.moonPhase);
-
-			extra.push('<a' + getForecastAttrs(latLon) + '>' + '<img src="https://www.windy.com/img/icons7/png_25px/' + icon + '.png" style="height: 1.3em; vertical-align: middle;" title="' + translate('weather', 'počasí') + ' ' + forecast.header.model + '"></a>' + (data.mm
-			? ' <span title="' + translate('precipitation', 'srážky') + '">' + data.mm + ' mm</span>'
+			extra.push('<a' + getForecastAttrs(latLon) + '>' + '<img src="https://www.windy.com/img/icons7/png_25px/' + icon + '.png" style="height: 1.3em; vertical-align: middle;" title="' + translate('weather', 'počasí') + ' ' + forecast.header.model + '"></a>' + (data.precipAmount
+			? ' <span title="' + translate('precipitation', 'srážky') + '">' + data.precipAmount.toFixed(1) + ' mm</span>'
 			: ''));
 		}
 
@@ -1246,7 +1241,7 @@ function instance($$self, $$props, $$invalidate) {
 	function getForecast(forecast) {
 		let i = 0;
 
-		for (; i < forecast.data.day.length; i++) {
+		for (; i < forecast.data.ts.length; i++) {
 			// Use last non-future forecast (e.g. 21:00 forecast for 23:00 path with 3 hours granularity).
 			if (forecast.data.ts[i] > store.get('timestamp')) {
 				break;

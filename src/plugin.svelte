@@ -104,29 +104,33 @@ let Wind;
 const winds = {};
 /** @typedef {{
  *   hour: number,
+ *   isDay: number,
  *   wind: number,
- *   gust: number,
+ *   windGust: number,
  *   windDir: number,
  *   icon: number,
  *   moonPhase: number,
- *   mm: number,
+ *   precipAmount: number,
  * }} */
 let Forecast;
 /** @typedef {{
- *   day: Array<string>,
+ *   ts: Array<number>,
  *   hour: Array<number>,
+ *   isDay: Array<number>,
  *   wind: Array<number>,
- *   gust: Array<number>,
+ *   windGust: Array<number>,
  *   windDir: Array<number>,
  *   icon: Array<number>,
  *   moonPhase: Array<number>,
- *   mm: Array<number>,
+ *   precipAmount: Array<number>,
  * }} */
 let ForecastArray;
 /** @type {Object<string, Object<string, {
- *   header: {note: string, sunrise: number, sunset: number},
+ *   header: {model: string},
+ *   celestial: {sunriseTs: number, sunsetTs: number},
+ *   summary: Array<Object>,
  *   data: Object<string, Array<ForecastArray>>,
- * }>>} key: model, key2: latLon, key in data: day */
+ * }>>} key: model, key2: latLon, key in data: parameter */
 const forecasts = {};
 /** @typedef {{header: {elevation: ?number, modelElevation: ?number}, data: {
  *   hours: Array<number>,
@@ -271,7 +275,7 @@ function loadForecast(latLon) {
 	if (forecasts[model][latLon]) {
 		return true;
 	}
-	windyFetch.getPointForecastData(model, Object.assign({step: 1}, getLatLon(latLon)), 'detail').then(forecast => {
+	windyFetch.getDetailPointForecastData(Object.assign({model, step: 1, days: 15}, getLatLon(latLon))).then(forecast => {
 		forecasts[model][latLon] = forecast.data;
 		// After loading the forecast, update the tooltip and possibly also the icon.
 		updateMarker(latLon);
@@ -347,7 +351,7 @@ function getTooltip(latLon) {
 			+ getLaunchExtra(site)
 		;
 	});
-	const data = forecast && !/FAKE/.test(forecast.header.note) && getForecast(forecast);
+	const data = forecast && getForecast(forecast);
 	let extra = [];
 	if (wind) {
 		// TODO: Get the high wind from airData for the other overlays.
@@ -356,17 +360,14 @@ function getTooltip(latLon) {
 			+ '<span style="color: ' + colors[getDirIndex(localSites, wind.dir)] + ';" title="' + translate('wind direction', 'směr větru') + windHeight + '">'
 			+ '<span style="display: inline-block; transform: rotate(' + wind.dir + 'deg)">↓</span> ' + wind.dir + '°</span>'
 			+ ' <span style="color: ' + colors[getSpeedIndex(wind.wind)] + ';" title="' + translate('wind speed', 'rychlost větru') + windHeight + '">' + wind.wind.toFixed(1) + ' m/s'
-			+ (data && data.gust != null ? ',</span> <span style="color: ' + colors[getSpeedIndex(data.gust - 4)] + ';" title="' + translate('gusts on surface', 'nárazy na zemi') + '">G: ' + data.gust.toFixed(1) + ' m/s' : '')
+			+ (data && data.windGust != null ? ',</span> <span style="color: ' + colors[getSpeedIndex(data.windGust - 4)] + ';" title="' + translate('gusts on surface', 'nárazy na zemi') + '">G: ' + data.windGust.toFixed(1) + ' m/s' : '')
 			+ '</span></a>');
 	}
 	if (data) {
-		// We don't have data about twilight, use sunrise and sunset instead.
-		const sunrise = new Date(forecast.header.sunrise).getHours();
-		const sunset = new Date(forecast.header.sunset).getHours();
-		const icon = data.icon + (data.hour > sunrise && data.hour <= sunset ? '' : '_night_' + data.moonPhase);
+		const icon = data.icon + (data.isDay > 0 ? '' : '_night_' + data.moonPhase);
 		extra.push('<a' + getForecastAttrs(latLon) + '>'
 			+ '<img src="https://www.windy.com/img/icons7/png_25px/' + icon + '.png" style="height: 1.3em; vertical-align: middle;" title="' + translate('weather', 'počasí') + ' ' + forecast.header.model + '"></a>'
-			+ (data.mm ? ' <span title="' + translate('precipitation', 'srážky') + '">' + data.mm + ' mm</span>' : '')
+			+ (data.precipAmount ? ' <span title="' + translate('precipitation', 'srážky') + '">' + data.precipAmount.toFixed(1) + ' mm</span>' : '')
 		);
 	}
 	tooltips.push(extra.join(' '));
@@ -426,7 +427,7 @@ function getTooltip(latLon) {
  */
 function getForecast(forecast) {
 	let i = 0;
-	for (; i < forecast.data.day.length; i++) {
+	for (; i < forecast.data.ts.length; i++) {
 		// Use last non-future forecast (e.g. 21:00 forecast for 23:00 path with 3 hours granularity).
 		if (forecast.data.ts[i] > store.get('timestamp')) {
 			break;
