@@ -9,8 +9,8 @@ const __pluginConfig =  {
   "desktopUI": "embedded",
   "mobileUI": "small",
   "routerPath": "/pgmapa",
-  "built": 1784905525255,
-  "builtReadable": "2026-07-24T15:05:25.255Z",
+  "built": 1784906346560,
+  "builtReadable": "2026-07-24T15:19:06.560Z",
   "screenshot": "screenshot.png"
 };
 
@@ -1135,15 +1135,15 @@ function instance($$self, $$props, $$invalidate) {
 				: '')
 			: '') + '>' + html(site.name) + '</a></b>' + (localSites.length > 1 && site.wind_usable
 			? ' <img src="' + getIconUrl([site], wind, colors) + '" width="12" height="12" alt="">'
-			: '') + [site.url].concat(site.urls || []).map(getUrlLink).join('') + (site.altitude
+			: '') + [site.url].concat(site.urls || []).map(getUrlLink).join('') + '<span style="vertical-align: text-bottom;">' + (site.altitude
 			? ' <span title="' + translate('elevation', 'nadmořská výška') + '">' + site.altitude + ' ' + translate('masl', 'mnm') + '</span>'
 			: '') + (site.superelevation
 			? ' (<span title="' + translate('vertical metre', 'převýšení') + '">' + site.superelevation + ' m</span>)'
-			: '') + (site.parkings && site.parkings.length
+			: '') + '</span>' + (site.parkings && site.parkings.length
 			? site.parkings.map(parking => ' <a href="https://www.google.com/maps/dir/?api=1&destination=' + parking.latitude + ',' + parking.longitude + '" target="_blank"><img src="https://www.google.com/images/branding/product/ico/maps15_bnuw3a_32dp.ico" width="12" height="12" alt="" title="' + translate('parking', 'parkoviště') + html(parking.name == site.name && site.parkings.length == 1
 				? ''
-				: ' ' + parking.name) + '" style="vertical-align: middle;"></a>').join('')
-			: ' <a href="https://www.google.com/maps/dir/?api=1&destination=' + site.latitude + ',' + site.longitude + '" target="_blank"><img src="https://www.google.com/images/branding/product/ico/maps15_bnuw3a_32dp.ico" width="12" height="12" alt="" title="' + translate('takeoff', 'startovačka') + '" style="vertical-align: middle;"></a>') + ' <a href="https://mapy.com/' + translate('en', 'cs') + '/turisticka?source=coor&id=' + site.longitude + ',' + site.latitude + '" target="_blank"><img src="https://mapy.com/img/favicon/common/plain/favicon-16x16.png" width="12" height="12" alt="" title="' + translate('takeoff', 'startovačka') + '" style="vertical-align: middle;"></a>' + getLaunchExtra();
+				: ' ' + parking.name) + '"></a>').join('')
+			: ' <a href="https://www.google.com/maps/dir/?api=1&destination=' + site.latitude + ',' + site.longitude + '" target="_blank"><img src="https://www.google.com/images/branding/product/ico/maps15_bnuw3a_32dp.ico" width="12" height="12" alt="" title="' + translate('takeoff', 'startovačka') + '"></a>') + ' <a href="https://mapy.com/' + translate('en', 'cs') + '/turisticka?source=coor&id=' + site.longitude + ',' + site.latitude + '" target="_blank"><img src="https://mapy.com/img/favicon/common/plain/favicon-16x16.png" width="12" height="12" alt="" title="' + translate('takeoff', 'startovačka') + '"></a>' + getLaunchExtra();
 		});
 
 		const data = forecast && getForecast(forecast);
