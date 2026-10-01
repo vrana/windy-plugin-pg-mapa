@@ -2,7 +2,7 @@ import type { ExternalPluginConfig } from '@windy/interfaces';
 
 const config: ExternalPluginConfig = {
     name: 'windy-plugin-pg-mapa',
-    version: '2.3.6',
+    version: '2.3.7',
     icon: '🪂',
     title: 'Paragliding Mapa',
     description: 'Windy plugin for paragliding takeoffs.',

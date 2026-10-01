@@ -351,7 +351,7 @@ function getTooltip(latLon) {
 			+ [site.url].concat(site.urls || []).map(getUrlLink).join('')
 			+ '<span style="vertical-align: text-bottom;">'
 			+ (site.altitude ? ' <span title="' + translate('elevation', 'nadmořská výška') + '">' + site.altitude + ' ' + translate('masl', 'mnm') + '</span>' : '')
-			+ (site.superelevation ? ' (<span title="' + translate('vertical metre', 'převýšení') + '">' + site.superelevation + ' m</span>)' : '')
+			+ (site.superelevation ? ' (<span title="' + translate('height difference', 'převýšení') + '">' + site.superelevation + ' m</span>)' : '')
 			+ '</span>'
 			+ (site.parkings && site.parkings.length
 				? site.parkings.map(parking => ' <a href="https://www.google.com/maps/dir/?api=1&destination=' + parking.latitude + ',' + parking.longitude + '" target="_blank"><img src="https://www.google.com/images/branding/product/ico/maps15_bnuw3a_32dp.ico" width="12" height="12" alt="" title="' + translate('parking', 'parkoviště') + html(parking.name == site.name && site.parkings.length == 1 ? '' : ' ' + parking.name) + '"></a>').join('')
@@ -365,12 +365,12 @@ function getTooltip(latLon) {
 	let extra = [];
 	if (wind) {
 		// TODO: Get the high wind from airData for the other overlays.
-		const windHeight = ' ' + (store.get('level') == 'surface' || store.get('overlay') != 'wind' ? translate('on surface', 'na zemi') : translate('at', 'v') + ' ' + store.get('level'));
+		const windHeight = ' ' + (store.get('level') == 'surface' || store.get('overlay') != 'wind' ? translate('at surface', 'na zemi') : translate('at', 'v') + ' ' + store.get('level'));
 		extra.push('<a' + getWindAttrs(latLon) + '>'
 			+ '<span style="color: ' + colors[getDirIndex(localSites, wind.dir)] + ';" title="' + translate('wind direction', 'směr větru') + windHeight + '">'
 			+ '<span style="display: inline-block; transform: rotate(' + wind.dir + 'deg)">↓</span> ' + wind.dir + '°</span>'
 			+ ' <span style="color: ' + colors[getSpeedIndex(wind.wind)] + ';" title="' + translate('wind speed', 'rychlost větru') + windHeight + '">' + wind.wind.toFixed(1) + ' m/s'
-			+ (data && data.windGust != null ? ',</span> <span style="color: ' + colors[getSpeedIndex(data.windGust - 4)] + ';" title="' + translate('gusts on surface', 'nárazy na zemi') + '">G: ' + data.windGust.toFixed(1) + ' m/s' : '')
+			+ (data && data.windGust != null ? ',</span> <span style="color: ' + colors[getSpeedIndex(data.windGust - 4)] + ';" title="' + translate('gusts at surface', 'nárazy na zemi') + '">G: ' + data.windGust.toFixed(1) + ' m/s' : '')
 			+ '</span></a>');
 	}
 	if (data) {
@@ -402,7 +402,7 @@ function getTooltip(latLon) {
 	}
 	const t = store.get('calendar').ts2path(store.get('timestamp')).replace(/(\d{4})(\d{2})(\d{2})(\d+)/, (match, year, month, day, hour) => year + '-' + month + '-' + day + 'T' + String(Math.round(hour / 3) * 3).padStart(2, 0) + ':00:00Z');
 	const [ceiling, cloudBase] = (getElevation(airData) ? computeCeiling(airData) : [0, false]);
-	extra.push((cloudBase ? translate('Cloud base', 'Základny') : (ceiling ? translate('Cloudless', 'Bezoblačná') : translate('Reach', 'Dostupy'))) + ':'
+	extra.push((cloudBase ? translate('Cloud base', 'Základny') : (ceiling ? translate('Cloudless', 'Bezoblačná') : translate('Thermal top', 'Dostupy'))) + ':'
 		+ ' <a class="climb" href="http://www.xcmeteo.net/?p=' + latLon.replace(/(.+) (.+)/, '$2x$1') + ',t=' + t + ',s=' + encodeURIComponent(s) + '" target="_blank" title="' + (airData ? translate('source', 'zdroj') + ': Windy ' + airData.header.model : '') + '">'
 		+ (getElevation(airData) ? Math.round(ceiling / 10) * 10 + ' m' : '-')
 		+ '</a>' + (displaySounding ? ' <a href="https://pg.vrana.cz/gfs/#explain" target="_blank"><sup>?</sup></a>' : '')
