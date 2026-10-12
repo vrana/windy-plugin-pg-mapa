@@ -9,8 +9,8 @@ const __pluginConfig =  {
   "desktopUI": "embedded",
   "mobileUI": "small",
   "routerPath": "/pgmapa",
-  "built": 1790885082292,
-  "builtReadable": "2026-10-01T20:04:42.292Z",
+  "built": 1791795918339,
+  "builtReadable": "2026-10-12T09:05:18.339Z",
   "screenshot": "screenshot.png"
 };
 
@@ -1128,8 +1128,10 @@ function instance($$self, $$props, $$invalidate) {
 
 		const tooltips = localSites.map(site => {
 			return '<b style="font-size: 1.25em;' + (site.name.length >= 20
-			? 'text-overflow: ellipsis; max-width: 180px; display: inline-block; overflow: hidden; vertical-align: text-bottom;" title="' + html(site.name)
-			: '') + '"><a' + getLaunchAttrs(site) + (isSiteForbidden(site)
+			? 'text-overflow: ellipsis; max-width: 180px; display: inline-block; overflow: hidden; vertical-align: text-bottom;'
+			: '') + '"' + (site.name.length >= 20 || site.site
+			? ' title="' + html((site.site ? site.site + ': ' : '') + site.name) + '"'
+			: '') + '><a' + getLaunchAttrs(site) + (isSiteForbidden(site)
 			? ' style="color: red;"' + (site.flying_status == 4
 				? ' title="' + translate('flying forbidden', 'létání zakázáno') + '"'
 				: '')
