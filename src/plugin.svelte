@@ -35,7 +35,7 @@ function getLaunchAttrs(site) {
 }
 
 function getApiUrl() {
-	return 'https://pg.vrana.cz/xcontest/pgmapa.php?locale=' + translate('en', 'cs');
+	return 'https://pg.vrana.cz/windy/json.php?locale=' + translate('en', 'cs');
 //~ 	return 'https://pg.vrana.cz/xcontest/pgearth.php';
 //~ 	return 'https://www.paragliding-mapa.cz/api/v0.1/launch?locale=' + translate('en', 'cs');
 //~ 	return 'https://pg.vrana.cz/xcontest/takeoffs.php?season=2021&country=CZ';

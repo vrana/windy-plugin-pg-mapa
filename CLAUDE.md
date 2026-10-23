@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 An external plugin for [Windy.com](https://www.windy.com) titled **Paragliding Mapa** (route
 `/pgmapa`). It overlays paragliding takeoffs on the Windy map and colors each by whether the
 forecast wind is usable there. Takeoff data comes from a remote API
-(`https://pg.vrana.cz/xcontest/pgmapa.php`); weather comes from Windy's own store/fetch APIs.
+(`https://pg.vrana.cz/windy/json.php`); weather comes from Windy's own store/fetch APIs.
 This is essentially the Windy-embedded version of the standalone app at
 `https://pg.vrana.cz/mapa/` (see the note at [src/plugin.svelte:72](src/plugin.svelte)).
 

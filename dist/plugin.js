@@ -9,8 +9,8 @@ const __pluginConfig =  {
   "desktopUI": "embedded",
   "mobileUI": "small",
   "routerPath": "/pgmapa",
-  "built": 1792741514992,
-  "builtReadable": "2026-10-23T07:45:14.992Z",
+  "built": 1792742939262,
+  "builtReadable": "2026-10-23T08:08:59.262Z",
   "screenshot": "screenshot.png"
 };
 
@@ -851,7 +851,7 @@ function instance($$self, $$props, $$invalidate) {
 	}
 
 	function getApiUrl() {
-		return 'https://pg.vrana.cz/xcontest/pgmapa.php?locale=' + translate('en', 'cs');
+		return 'https://pg.vrana.cz/windy/json.php?locale=' + translate('en', 'cs');
 	} //~ 	return 'https://pg.vrana.cz/xcontest/pgearth.php';
 	//~ 	return 'https://www.paragliding-mapa.cz/api/v0.1/launch?locale=' + translate('en', 'cs');
 
