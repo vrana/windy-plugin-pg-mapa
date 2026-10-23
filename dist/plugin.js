@@ -9,8 +9,8 @@ const __pluginConfig =  {
   "desktopUI": "embedded",
   "mobileUI": "small",
   "routerPath": "/pgmapa",
-  "built": 1791795918339,
-  "builtReadable": "2026-10-12T09:05:18.339Z",
+  "built": 1792741514992,
+  "builtReadable": "2026-10-23T07:45:14.992Z",
   "screenshot": "screenshot.png"
 };
 
@@ -571,11 +571,11 @@ function removeMarker(marker) {
 
 function getUrlLink(url) {
 	if ((/paragliding-mapa\.cz/).test(url)) {
-		return ' <a href="' + url + '" target="_blank"><img src="https://www.paragliding-mapa.cz/favicon/favicon-32x32.png" width="12" height="12" alt="" title="Paragliding Mapa"></a>';
+		return ' <a href="' + url + '" target="_blank"><img src="https://pg.vrana.cz/windy/paragliding-mapa.svg" width="12" height="12" alt="" title="Paragliding Mapa"></a>';
 	} else if ((/dhv\.de/).test(url)) {
-		return ' <a href="' + url + '" target="_blank"><img src="https://service.dhv.de/dbresources/dhv/images/ci/dhv.ico" width="12" height="12" alt="" title="DHV"></a>';
+		return ' <a href="' + url + '" target="_blank"><img src="https://pg.vrana.cz/windy/dhv.ico" width="12" height="12" alt="" title="DHV"></a>';
 	} else if ((/paraglidingearth\.com/).test(url)) {
-		return ' <a href="' + url + '" target="_blank"><img src="https://www.paraglidingearth.com/assets/img/favicon.ico" width="12" height="12" alt="" title="Paragliding Earth"></a>';
+		return ' <a href="' + url + '" target="_blank"><img src="https://pg.vrana.cz/windy/paraglidingearth.ico" width="12" height="12" alt="" title="Paragliding Earth"></a>';
 	}
 
 	return ''; // No icon for XContest because there's already an XContest icon below.
@@ -1142,10 +1142,10 @@ function instance($$self, $$props, $$invalidate) {
 			: '') + (site.superelevation
 			? ' (<span title="' + translate('height difference', 'převýšení') + '">' + site.superelevation + ' m</span>)'
 			: '') + '</span>' + (site.parkings && site.parkings.length
-			? site.parkings.map(parking => ' <a href="https://www.google.com/maps/dir/?api=1&destination=' + parking.latitude + ',' + parking.longitude + '" target="_blank"><img src="https://www.google.com/images/branding/product/ico/maps15_bnuw3a_32dp.ico" width="12" height="12" alt="" title="' + translate('parking', 'parkoviště') + html(parking.name == site.name && site.parkings.length == 1
+			? site.parkings.map(parking => ' <a href="https://www.google.com/maps/dir/?api=1&destination=' + parking.latitude + ',' + parking.longitude + '" target="_blank"><img src="https://pg.vrana.cz/windy/gmaps.ico" width="12" height="12" alt="" title="' + translate('parking', 'parkoviště') + html(parking.name == site.name && site.parkings.length == 1
 				? ''
 				: ' ' + parking.name) + '"></a>').join('')
-			: ' <a href="https://www.google.com/maps/dir/?api=1&destination=' + site.latitude + ',' + site.longitude + '" target="_blank"><img src="https://www.google.com/images/branding/product/ico/maps15_bnuw3a_32dp.ico" width="12" height="12" alt="" title="' + translate('takeoff', 'startovačka') + '"></a>') + ' <a href="https://mapy.com/' + translate('en', 'cs') + '/turisticka?source=coor&id=' + site.longitude + ',' + site.latitude + '" target="_blank"><img src="https://mapy.com/img/favicon/common/plain/favicon-16x16.png" width="12" height="12" alt="" title="' + translate('takeoff', 'startovačka') + '"></a>' + getLaunchExtra();
+			: ' <a href="https://www.google.com/maps/dir/?api=1&destination=' + site.latitude + ',' + site.longitude + '" target="_blank"><img src="https://pg.vrana.cz/windy/gmaps.ico" width="12" height="12" alt="" title="' + translate('takeoff', 'startovačka') + '"></a>') + ' <a href="https://mapy.com/' + translate('en', 'cs') + '/turisticka?source=coor&id=' + site.longitude + ',' + site.latitude + '" target="_blank"><img src="https://pg.vrana.cz/windy/mapy.png" width="12" height="12" alt="" title="' + translate('takeoff', 'startovačka') + '"></a>' + getLaunchExtra();
 		});
 
 		const data = forecast && getForecast(forecast);
@@ -1183,7 +1183,7 @@ function instance($$self, $$props, $$invalidate) {
 		let xcontestLink;
 		localSites.some(site => xcontestLink = [site.url].concat(site.urls || []).find(url => (/\bxcontest\b/).test(url))); // flights-search requires login and it can include other sites.
 
-		extra.push('<a href="' + (xcontestLink || 'https://www.xcontest.org/world/en/flights-search/?list[sort]=pts&filter[point]=' + latLon.replace(/(.+) (.+)/, '$2+$1') + '&filter[radius]=2000&filter[date_mode]=period#filter-mode') + '" target="_blank"><img src="https://s.xcontest.org/img/xcontest.gif" width="25" height="12" alt="XContest" style="vertical-align: middle;"></a>' + (localSites[0].flights != null
+		extra.push('<a href="' + (xcontestLink || 'https://www.xcontest.org/world/en/flights-search/?list[sort]=pts&filter[point]=' + latLon.replace(/(.+) (.+)/, '$2+$1') + '&filter[radius]=2000&filter[date_mode]=period#filter-mode') + '" target="_blank"><img src="https://pg.vrana.cz/windy/xcontest.gif" width="25" height="12" alt="XContest" style="vertical-align: middle;"></a>' + (localSites[0].flights != null
 		? ' <span title="' + translate('per year', 'za rok') + '">(' + localSites[0].flights + ' ' + translate('flights', 'letů') + ')</span>,'
 		: ''));
 
