@@ -198,8 +198,8 @@ async function redraw() {
 	const mapBounds = map.getBounds();
 	const displayed = [];
 	for (const latLon in sites) {
-		const flights = sites[latLon].reduce((acc, site) => Math.max(acc, site.flights), 0);
-		if (map.getZoom() >= (flights > 1000 ? 5 : (flights > 100 ? 7 : (flights > 10 ? 8 : 10))) && mapBounds.contains(getLatLon(latLon))) {
+		const amount = getAmount(sites[latLon]);
+		if (map.getZoom() >= (amount > 1000 ? 5 : (amount > 100 ? 7 : (amount > 10 ? 8 : 10))) && mapBounds.contains(getLatLon(latLon))) {
 			if (!markers[latLon]) {
 				markers[latLon] = createMarker(latLon);
 			}
@@ -224,7 +224,7 @@ async function redraw() {
 			removeMarker(markers[latLon]);
 		}
 	}
-	displayed.sort((a, b) => sites[a].every(isSiteForbidden) - sites[b].every(isSiteForbidden) || sites[b][0].flights - sites[a][0].flights);
+	displayed.sort((a, b) => sites[a].every(isSiteForbidden) - sites[b].every(isSiteForbidden) || getAmount(sites[b]) - getAmount(sites[a]));
 	Object.values(names).forEach(removeMarker);
 	for (let i=0; i < 10 && i < displayed.length; i++) {
 		const latLon = displayed[i];
@@ -538,7 +538,7 @@ function isDirIn(dir, from, to, tolerance = 0) {
 function newIcon(url, site) {
 	const zoom = map.getZoom();
 	let size = zoom > 9 ? 38 : zoom > 6 ? 19 : zoom > 5 ? 9 : 5;
-	const amount = (site[0].flights ?? (site[0].superelevation || 0));
+	const amount = getAmount(site);
 	if (amount < 10) {
 		size /= 2;
 	} else if (amount < 100) {
@@ -550,6 +550,14 @@ function newIcon(url, site) {
 		iconAnchor: [(size - 1) / 2, (size - 1) / 2],
 		shadowUrl: null,
 	});
+}
+
+/** Gets how much a place is used: the number of flights or the height difference if flights are unknown.
+ * @param {Array<Site>} sites
+ * @return {number}
+ */
+function getAmount(sites) {
+	return sites.reduce((acc, site) => Math.max(acc, site.flights ?? (site.superelevation || 0)), 0);
 }
 
 /** Gets SVG path for circle slice.
