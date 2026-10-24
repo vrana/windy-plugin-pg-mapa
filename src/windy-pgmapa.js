@@ -138,8 +138,7 @@ export function init() {
 		}
 
 		map.on('popupclose', () => activeMarker = null);
-		redraw(); // Redraw might be finished before the data is loaded.
-		onLaunchLoad();
+		redraw().then(onLaunchLoad); // Redraw might be finished before the data is loaded.
 	});
 }
 
@@ -149,6 +148,19 @@ export function destroy() {
 	Object.values(names).forEach(removeMarker);
 	broadcast.off('redrawFinished', redraw);
 	map.off('moveend', redraw);
+}
+
+/** Opens popup of a takeoff, e.g. the one asked for in URL.
+ * @param {function(Site): boolean} isSite
+ */
+export function openPopup(isSite) {
+	for (const latLon in sites) {
+		if (sites[latLon].some(isSite)) {
+			markers[latLon] = markers[latLon] || createMarker(latLon);
+			markers[latLon].addTo(map).openPopup();
+			return;
+		}
+	}
 }
 
 function createMarker(latLon) {
