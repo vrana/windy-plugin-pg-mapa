@@ -52,6 +52,30 @@ export function getLaunchExtra(site) {
 	return '';
 }
 
+export function getUrlLink(url) {
+	if (/paragliding-mapa\.cz/.test(url)) {
+		return ' <a href="' + url + '" target="_blank"><img src="https://pg.vrana.cz/windy/paragliding-mapa.svg" width="12" height="12" alt="" title="Paragliding Mapa"></a>';
+	} else if (/dhv\.de/.test(url)) {
+		return ' <a href="' + url + '" target="_blank"><img src="https://pg.vrana.cz/windy/dhv.ico" width="12" height="12" alt="" title="DHV"></a>';
+	} else if (/paraglidingearth\.com/.test(url)) {
+		return ' <a href="' + url + '" target="_blank"><img src="https://pg.vrana.cz/windy/paraglidingearth.ico" width="12" height="12" alt="" title="Paragliding Earth"></a>';
+	}
+	return ''; // No icon for XContest because there's already an XContest icon below.
+}
+
+/** Gets icon of a link.
+ * @param {string} name 'parking', 'navigate', 'mapy' or 'xcontest'
+ * @param {string} title HTML
+ * @return {string} HTML
+ */
+export function getIcon(name, title) {
+	if (name == 'xcontest') {
+		return '<img src="https://pg.vrana.cz/windy/xcontest.gif" width="25" height="12" alt="' + title + '" style="vertical-align: middle;">';
+	}
+	const file = (name == 'mapy' ? 'mapy.png' : 'gmaps.ico');
+	return '<img src="https://pg.vrana.cz/windy/' + file + '" width="12" height="12" alt="" title="' + title + '">';
+}
+
 export function getWindAttrs(latLon) {
 	return ' href=\'javascript:W.broadcast.fire("rqstOpen", "detail", ' + JSON.stringify(Object.assign(getLatLon(latLon), {'display': 'wind'})) + ');\''; // Recommended at https://community.windy.com/topic/28899 but it doesn't work.
 }

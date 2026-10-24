@@ -1,6 +1,6 @@
 // Windy modules and functions of the place it runs in.
 import {broadcast, map, store, utils, getLatLonInterpolator} from './windy.js';
-import {fetchForecast, fetchAirData, getApiUrl, getLaunchAttrs, getLaunchExtra, getWindAttrs, getForecastAttrs, onLaunchLoad} from './windy.js';
+import {fetchForecast, fetchAirData, getApiUrl, getLaunchAttrs, getUrlLink, getIcon, getLaunchExtra, getWindAttrs, getForecastAttrs, onLaunchLoad} from './windy.js';
 
 /** @typedef {{
  *   latitude: number,
@@ -276,17 +276,6 @@ function removeMarker(marker) {
 	marker.map && marker.remove();
 }
 
-function getUrlLink(url) {
-	if (/paragliding-mapa\.cz/.test(url)) {
-		return ' <a href="' + url + '" target="_blank"><img src="https://pg.vrana.cz/windy/paragliding-mapa.svg" width="12" height="12" alt="" title="Paragliding Mapa"></a>';
-	} else if (/dhv\.de/.test(url)) {
-		return ' <a href="' + url + '" target="_blank"><img src="https://pg.vrana.cz/windy/dhv.ico" width="12" height="12" alt="" title="DHV"></a>';
-	} else if (/paraglidingearth\.com/.test(url)) {
-		return ' <a href="' + url + '" target="_blank"><img src="https://pg.vrana.cz/windy/paraglidingearth.ico" width="12" height="12" alt="" title="Paragliding Earth"></a>';
-	}
-	return ''; // No icon for XContest because there's already an XContest icon below.
-}
-
 /** Gets tooltip with site names, wind info and forecast.
  * @param {string} latLon
  * @return {HTMLElement}
@@ -310,10 +299,10 @@ function getTooltip(latLon) {
 			+ (site.superelevation ? ' (<span title="' + translate('height difference', 'převýšení') + '">' + site.superelevation + ' m</span>)' : '')
 			+ '</span>'
 			+ (site.parkings && site.parkings.length
-				? site.parkings.map(parking => ' <a href="https://www.google.com/maps/dir/?api=1&destination=' + parking.latitude + ',' + parking.longitude + '" target="_blank"><img src="https://pg.vrana.cz/windy/gmaps.ico" width="12" height="12" alt="" title="' + translate('parking', 'parkoviště') + html(parking.name == site.name && site.parkings.length == 1 ? '' : ' ' + parking.name) + '"></a>').join('')
-				: ' <a href="https://www.google.com/maps/dir/?api=1&destination=' + site.latitude + ',' + site.longitude + '" target="_blank"><img src="https://pg.vrana.cz/windy/gmaps.ico" width="12" height="12" alt="" title="' + translate('takeoff', 'startovačka') + '"></a>'
+				? site.parkings.map(parking => ' <a href="https://www.google.com/maps/dir/?api=1&destination=' + parking.latitude + ',' + parking.longitude + '" target="_blank">' + getIcon('parking', translate('parking', 'parkoviště') + html(parking.name == site.name && site.parkings.length == 1 ? '' : ' ' + parking.name)) + '</a>').join('')
+				: ' <a href="https://www.google.com/maps/dir/?api=1&destination=' + site.latitude + ',' + site.longitude + '" target="_blank">' + getIcon('navigate', translate('takeoff', 'startovačka')) + '</a>'
 			)
-			+ ' <a href="https://mapy.com/' + translate('en', 'cs') + '/turisticka?source=coor&id=' + site.longitude + ',' + site.latitude + '" target="_blank"><img src="https://pg.vrana.cz/windy/mapy.png" width="12" height="12" alt="" title="' + translate('takeoff', 'startovačka') + '"></a>'
+			+ ' <a href="https://mapy.com/' + translate('en', 'cs') + '/turisticka?source=coor&id=' + site.longitude + ',' + site.latitude + '" target="_blank">' + getIcon('mapy', translate('takeoff', 'startovačka')) + '</a>'
 			+ getLaunchExtra(site)
 		;
 	});
@@ -346,7 +335,7 @@ function getTooltip(latLon) {
 	addLinks(localSites[0].link_webcam, translate('webcam', 'webkamera'), 'l');
 	let xcontestLink;
 	localSites.some(site => xcontestLink = [site.url].concat(site.urls || []).find(url => /\bxcontest\b/.test(url))); // flights-search requires login and it can include other sites.
-	extra.push('<a href="' + (xcontestLink || 'https://www.xcontest.org/world/en/flights-search/?list[sort]=pts&filter[point]=' + latLon.replace(/(.+) (.+)/, '$2+$1') + '&filter[radius]=2000&filter[date_mode]=period#filter-mode') + '" target="_blank"><img src="https://pg.vrana.cz/windy/xcontest.gif" width="25" height="12" alt="XContest" style="vertical-align: middle;"></a>' + (localSites[0].flights != null ? ' <span title="' + translate('per year', 'za rok') + '">(' + localSites[0].flights + ' ' + translate('flights', 'letů') + ')</span>,' : ''));
+	extra.push('<a href="' + (xcontestLink || 'https://www.xcontest.org/world/en/flights-search/?list[sort]=pts&filter[point]=' + latLon.replace(/(.+) (.+)/, '$2+$1') + '&filter[radius]=2000&filter[date_mode]=period#filter-mode') + '" target="_blank">' + getIcon('xcontest', 'XContest') + '</a>' + (localSites[0].flights != null ? ' <span title="' + translate('per year', 'za rok') + '">(' + localSites[0].flights + ' ' + translate('flights', 'letů') + ')</span>,' : ''));
 	let s = localSites[0].name;
 	if (localSites.length > 1) {
 		const words = {};
