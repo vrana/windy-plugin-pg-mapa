@@ -9,7 +9,7 @@ An external plugin for [Windy.com](https://www.windy.com) titled **Paragliding M
 forecast wind is usable there. Takeoff data comes from a remote API
 (`https://pg.vrana.cz/windy/json.php`); weather comes from Windy's own store/fetch APIs.
 This is essentially the Windy-embedded version of the standalone app at
-`https://pg.vrana.cz/mapa/` (see the note at [src/plugin.svelte:72](src/plugin.svelte)).
+`https://pg.vrana.cz/mapa/` (the shared [src/windy-pgmapa.js](src/windy-pgmapa.js)).
 
 ## Commands
 
@@ -30,8 +30,14 @@ This is essentially the Windy-embedded version of the standalone app at
 
 ## Architecture
 
-- **Almost everything lives in [src/plugin.svelte](src/plugin.svelte)** (~860 lines) – a single
-  Svelte component holding all the logic. [src/pluginConfig.ts](src/pluginConfig.ts) is only
+- **The logic lives in [src/windy-pgmapa.js](src/windy-pgmapa.js)** (~820 lines), a plain ES module shared
+  as-is with the other places showing the takeoffs on a Windy map (paragliding-mapa.cz has the same
+  file). It imports only `./windy.js`: the Windy modules and the functions that differ per place
+  (`getApiUrl`, `getLaunchAttrs`, `getWindAttrs`, …). Every place has its own `windy.js` exporting
+  the same names; [src/windy.js](src/windy.js) is the plugin's, re-exporting the `@windy/*`
+  imports. It imports `getLatLon` back from `windy-pgmapa.js` (a cycle, fine for
+  functions called at run time). [src/plugin.svelte](src/plugin.svelte) only calls `init()` in
+  `onopen` and `destroy()` in `onDestroy`. [src/pluginConfig.ts](src/pluginConfig.ts) is only
   plugin metadata (`ExternalPluginConfig`: title, icon, `routerPath`, desktop/mobile UI mode).
 
 - **`@windy/*` imports are runtime-external.** rollup marks any `@windy/` id as external
@@ -40,7 +46,7 @@ This is essentially the Windy-embedded version of the standalone app at
   Do not try to bundle these.
 
 - **Lifecycle:** `onopen` → `init()` registers `broadcast.on('redrawFinished', redraw)` and
-  `map.on('moveend', redraw)`, and fetches the takeoff list once. `onDestroy` removes markers
+  `map.on('moveend', redraw)`, and fetches the takeoff list once. `onDestroy(destroy)` removes markers
   and detaches the listeners.
 
 - **Data model:** `sites` is keyed by a `"latitude longitude"` string; nearby takeoffs are
@@ -68,7 +74,7 @@ This is essentially the Windy-embedded version of the standalone app at
 - **The version lives only in [src/pluginConfig.ts](src/pluginConfig.ts)** (`version`), which
   feeds the generated `dist/plugin.json` that Windy reads. `package.json` no longer carries a
   `version` field — the plugin is not distributed via npm.
-- The active takeoff data source is `getApiUrl()` in [src/plugin.svelte:37](src/plugin.svelte);
+- The active takeoff data source is `getApiUrl(locale)` in [src/windy.js:41](src/windy.js);
   commented-out alternatives (paragliding-mapa.cz, DHV, Paragliding Earth) sit right below it.
 - Indentation is tabs; several eslint rules (`indent`, `no-mixed-spaces-and-tabs`,
   `no-fallthrough`, `no-cond-assign`) are intentionally disabled.
