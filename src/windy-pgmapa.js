@@ -77,6 +77,10 @@ let AirData;
 const airDatas = {};
 /** @type {boolean} Whether to display sounding. */
 let displaySounding = false;
+/** @type {Set<string>} Data being loaded or failed recently. */
+const requested = new Set();
+/** A failed request is tried again after a minute, not on every redraw. */
+const RETRY_MS = 60000;
 
 /** Gets model usable for forecast.
  * @return {string}
@@ -168,7 +172,7 @@ function createMarker(latLon) {
 			airDatas[model] = {};
 		}
 		if (!airDatas[model][latLon]) {
-			fetchAirData(model, latLon).then(airData => {
+			request('airData:' + model + ':' + latLon, () => fetchAirData(model, latLon), airData => {
 				airDatas[model][latLon] = airData;
 				markers[latLon].setPopupContent(getTooltip(latLon));
 			});
@@ -238,12 +242,31 @@ function loadForecast(latLon) {
 	if (forecasts[model][latLon]) {
 		return true;
 	}
-	fetchForecast(model, latLon).then(forecast => {
+	request('forecast:' + model + ':' + latLon, () => fetchForecast(model, latLon), forecast => {
 		forecasts[model][latLon] = forecast;
 		// After loading the forecast, update the tooltip and possibly also the icon.
 		updateMarker(latLon);
 	});
 	return false;
+}
+
+/** Loads data unless they are already being loaded or failed recently.
+ * @param {string} key
+ * @param {function(): Promise} load
+ * @param {function(*)} onLoad
+ */
+function request(key, load, onLoad) {
+	if (requested.has(key)) {
+		return;
+	}
+	requested.add(key);
+	load().then(data => {
+		requested.delete(key);
+		onLoad(data);
+	}).catch(error => {
+		console.warn('Loading failed', key, error && (error.message || error.status));
+		setTimeout(() => requested.delete(key), RETRY_MS);
+	});
 }
 
 /** Gets wind data.
