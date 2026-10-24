@@ -329,7 +329,7 @@ function getTooltip(latLon) {
 			+ (isSiteForbidden(site) ? ' style="color: red;"' + (site.flying_status == 4 ? ' title="' + translate('flying forbidden', 'létání zakázáno') + '"' : '') : '') + '>' + html(site.name) + '</a></b>'
 			+ (localSites.length > 1 && site.wind_usable ? ' <img src="' + getIconUrl([site], wind, colors) + '" width="12" height="12" alt="">' : '')
 			+ [site.url].concat(site.urls || []).map(getUrlLink).join('')
-			+ '<span style="vertical-align: text-bottom;">'
+			+ '<span' + (site.name.length >= 20 ? ' style="vertical-align: text-bottom;"' : '') + '>' // Align to the shortened name.
 			+ (site.altitude ? ' <span title="' + translate('elevation', 'nadmořská výška') + '">' + site.altitude + ' ' + translate('masl', 'mnm') + '</span>' : '')
 			+ (site.superelevation ? ' (<span title="' + translate('height difference', 'převýšení') + '">' + site.superelevation + ' m</span>)' : '')
 			+ '</span>'
