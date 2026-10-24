@@ -75,7 +75,7 @@ This is essentially the Windy-embedded version of the standalone app at
 - **The version lives only in [src/pluginConfig.ts](src/pluginConfig.ts)** (`version`), which
   feeds the generated `dist/plugin.json` that Windy reads. `package.json` no longer carries a
   `version` field — the plugin is not distributed via npm.
-- The active takeoff data source is `getApiUrl(locale)` in [src/windy.js:43](src/windy.js);
+- The active takeoff data source is `getApiUrl(locale)` in [src/windy.js:46](src/windy.js);
   commented-out alternatives (paragliding-mapa.cz, DHV, Paragliding Earth) sit right below it.
 - Indentation is tabs; several eslint rules (`indent`, `no-mixed-spaces-and-tabs`,
   `no-fallthrough`, `no-cond-assign`) are intentionally disabled.

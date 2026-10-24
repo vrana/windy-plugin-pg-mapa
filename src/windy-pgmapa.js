@@ -1,6 +1,6 @@
 // Windy modules and functions of the place it runs in.
 import {broadcast, map, store, utils, getLatLonInterpolator} from './windy.js';
-import {fetchForecast, fetchAirData, getApiUrl, getLaunchAttrs, getUrlLink, getIcon, getLaunchExtra, getWindAttrs, getForecastAttrs, onLaunchLoad} from './windy.js';
+import {colorByForecast, fetchForecast, fetchAirData, getApiUrl, getLaunchAttrs, getUrlLink, getIcon, getLaunchExtra, getWindAttrs, getForecastAttrs, onLaunchLoad} from './windy.js';
 
 /** @typedef {{
  *   latitude: number,
@@ -198,7 +198,7 @@ async function redraw() {
 						winds[getWindsKey(latLon)] = data && utils.wind2obj(data);
 						updateMarker(latLon);
 					});
-				} else if (!loadForecast(latLon) && markers[latLon]._icon) {
+				} else if (colorByForecast && !loadForecast(latLon) && markers[latLon]._icon) {
 					// Preserve the old icon, just resize it.
 					const url = markers[latLon]._icon.src;
 					markers[latLon].setIcon(newIcon(url, sites[latLon]));

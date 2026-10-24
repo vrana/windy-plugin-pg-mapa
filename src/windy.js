@@ -8,6 +8,9 @@ import {getLatLon} from './windy-pgmapa.js';
 
 export {broadcast, getLatLonInterpolator, map, store, utils};
 
+/** Whether to load forecast of all displayed takeoffs to color them when the overlay is not wind. */
+export const colorByForecast = true;
+
 /** Used in API version. */
 export function onLaunchLoad() {
 }
