@@ -1,6 +1,6 @@
 // Windy modules and functions of the place it runs in.
-import {broadcast, map, store, utils, windyFetch, getLatLonInterpolator} from './windy.js';
-import {getModel, getAirdataModel, getApiUrl, getLaunchAttrs, getLaunchExtra, getWindAttrs, getForecastAttrs, onLaunchLoad} from './windy.js';
+import {broadcast, map, store, utils, getLatLonInterpolator} from './windy.js';
+import {fetchForecast, fetchAirData, getApiUrl, getLaunchAttrs, getLaunchExtra, getWindAttrs, getForecastAttrs, onLaunchLoad} from './windy.js';
 
 /** @typedef {{
  *   latitude: number,
@@ -78,6 +78,20 @@ const airDatas = {};
 /** @type {boolean} Whether to display sounding. */
 let displaySounding = false;
 
+/** Gets model usable for forecast.
+ * @return {string}
+ */
+function getModel() {
+	return store.get('product');
+}
+
+/** Gets model usable for airData.
+ * @return {string}
+ */
+function getAirdataModel() {
+	return store.get('product'); // models with airData and modelElevation or elevation
+}
+
 /** Displays takeoffs on the map. */
 export function init() {
 	const style = document.createElement('style');
@@ -154,8 +168,8 @@ function createMarker(latLon) {
 			airDatas[model] = {};
 		}
 		if (!airDatas[model][latLon]) {
-			windyFetch.getMeteogramForecastData(model, Object.assign({step: 1}, getLatLon(latLon))).then(airData => {
-				airDatas[model][latLon] = airData.data;
+			fetchAirData(model, latLon).then(airData => {
+				airDatas[model][latLon] = airData;
 				markers[latLon].setPopupContent(getTooltip(latLon));
 			});
 		}
@@ -224,8 +238,8 @@ function loadForecast(latLon) {
 	if (forecasts[model][latLon]) {
 		return true;
 	}
-	windyFetch.getDetailPointForecastData(Object.assign({model, step: 1, days: 15}, getLatLon(latLon))).then(forecast => {
-		forecasts[model][latLon] = forecast.data;
+	fetchForecast(model, latLon).then(forecast => {
+		forecasts[model][latLon] = forecast;
 		// After loading the forecast, update the tooltip and possibly also the icon.
 		updateMarker(latLon);
 	});

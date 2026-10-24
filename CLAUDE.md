@@ -61,8 +61,9 @@ This is essentially the Windy-embedded version of the standalone app at
   flight count in `newIcon`.
 
 - **Weather:** wind comes from the live `wind` overlay interpolator when that overlay is active,
-  otherwise from `windyFetch.getPointForecastData`. `windyFetch.getMeteogramForecastData`
-  (airData) feeds the `computeCeiling` thermal/cloud-base calculation and the interactive
+  otherwise from the forecast of `fetchForecast()` (in the plugin
+  `windyFetch.getDetailPointForecastData`). `fetchAirData()` (`windyFetch.getMeteogramForecastData`)
+  feeds the `computeCeiling` thermal/cloud-base calculation and the interactive
   `showSounding` SVG sounding diagram.
 
 - **i18n:** `translate(english, czech)` selects the language from `store.get('lang')` /
@@ -74,7 +75,7 @@ This is essentially the Windy-embedded version of the standalone app at
 - **The version lives only in [src/pluginConfig.ts](src/pluginConfig.ts)** (`version`), which
   feeds the generated `dist/plugin.json` that Windy reads. `package.json` no longer carries a
   `version` field — the plugin is not distributed via npm.
-- The active takeoff data source is `getApiUrl(locale)` in [src/windy.js:41](src/windy.js);
+- The active takeoff data source is `getApiUrl(locale)` in [src/windy.js:43](src/windy.js);
   commented-out alternatives (paragliding-mapa.cz, DHV, Paragliding Earth) sit right below it.
 - Indentation is tabs; several eslint rules (`indent`, `no-mixed-spaces-and-tabs`,
   `no-fallthrough`, `no-cond-assign`) are intentionally disabled.

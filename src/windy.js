@@ -6,28 +6,30 @@ import utils from '@windy/utils';
 import windyFetch from '@windy/fetch';
 import {getLatLon} from './windy-pgmapa.js';
 
-export {broadcast, getLatLonInterpolator, map, store, utils, windyFetch};
+export {broadcast, getLatLonInterpolator, map, store, utils};
 
 /** Used in API version. */
 export function onLaunchLoad() {
 }
 
-/** Gets model usable for forecast.
- * @return {string}
+/** Loads forecast of a point.
+ * @param {string} model
+ * @param {string} latLon
+ * @return {Promise<{header: Object, data: Object<string, Array>}>}
  */
-export function getModel() {
-	const product = store.get('product');
+export function fetchForecast(model, latLon) {
 	// https://docs.windy-plugins.com/api/modules/fetch.html#getpointforecastdata
-	return product;
+	return windyFetch.getDetailPointForecastData(Object.assign({model, step: 1, days: 15}, getLatLon(latLon))).then(forecast => forecast.data);
 }
 
-/** Gets model usable for airData.
- * @return {string}
+/** Loads airData of a point.
+ * @param {string} model
+ * @param {string} latLon
+ * @return {Promise<{header: Object, data: Object<string, Array>}>}
  */
-export function getAirdataModel() {
-	const product = store.get('product');
+export function fetchAirData(model, latLon) {
 	// https://docs.windy-plugins.com/api/modules/fetch.html#getmeteogramforecastdata
-	return product; // models with airData and modelElevation or elevation
+	return windyFetch.getMeteogramForecastData(model, Object.assign({step: 1}, getLatLon(latLon))).then(airData => airData.data);
 }
 
 export function getLaunchAttrs(site) {
