@@ -5,5 +5,4 @@ node_modules
 package-lock.json
 *.log
 .vscode
-dist/*
-!dist/plugin.js
+dist
