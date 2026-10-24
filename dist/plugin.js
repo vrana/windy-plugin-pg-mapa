@@ -1,6 +1,6 @@
 const __pluginConfig =  {
   "name": "windy-plugin-pg-mapa",
-  "version": "2.3.7",
+  "version": "2.3.8",
   "icon": "🪂",
   "title": "Paragliding Mapa",
   "description": "Windy plugin for paragliding takeoffs.",
@@ -9,8 +9,8 @@ const __pluginConfig =  {
   "desktopUI": "embedded",
   "mobileUI": "small",
   "routerPath": "/pgmapa",
-  "built": 1792742939262,
-  "builtReadable": "2026-10-23T08:08:59.262Z",
+  "built": 1792746873327,
+  "builtReadable": "2026-10-23T09:14:33.327Z",
   "screenshot": "screenshot.png"
 };
 
