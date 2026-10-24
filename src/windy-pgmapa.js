@@ -423,6 +423,11 @@ function getForecast(forecast) {
 			break;
 		}
 	}
+	const ts = forecast.data.ts;
+	if (i == ts.length && i > 1 && store.get('timestamp') - ts[i - 1] > ts[i - 1] - ts[i - 2]) {
+		// The last forecast is not a forecast for days after it.
+		return null;
+	}
 	const result = {};
 	for (let key in forecast.data) {
 		result[key] = forecast.data[key][i - 1];
