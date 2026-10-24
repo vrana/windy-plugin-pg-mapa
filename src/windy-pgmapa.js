@@ -308,7 +308,7 @@ function updateMarker(latLon) {
  * @param L.Marker
  */
 function removeMarker(marker) {
-	marker.map && marker.remove();
+	(marker.map || marker._map) && marker.remove(); // Windy's Leaflet has map, Leaflet 1.4 of Windy API _map.
 }
 
 /** Gets tooltip with site names, wind info and forecast.
